@@ -10,6 +10,11 @@
 
 #pragma once
 
+//needs putting somewhere proper
+#if defined (swap32)
+#undef swap32
+#endif
+
 #include "stdint.hpp"
 
 class outils

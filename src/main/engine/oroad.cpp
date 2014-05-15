@@ -30,6 +30,10 @@
 #include "engine/oroad.hpp"
 #include "engine/ostats.hpp"
 
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
+
 ORoad oroad;
 
 ORoad::ORoad(void)
@@ -95,6 +99,8 @@ void ORoad::init()
     pos_fine         = 0;
     horizon_base     = 0;
 
+	printf("ORoad::init 0");
+
     for (int i = 0; i < ARRAY_LENGTH; i++)
     {
         road_x[i] = 0;
@@ -103,8 +109,10 @@ void ORoad::init()
         road_unk[i] = 0;
     }
 
-     for (int i = 0; i < 0x1000; i++)
-         road_y[i] = 0;
+	printf("ORoad::init 1");
+
+    for (int i = 0; i < 0x1000; i++)
+        road_y[i] = 0;
 
     road_pos_old = 0;
     road_data_offset = 0;
@@ -146,9 +154,17 @@ void ORoad::init()
     road_p2 = road_p1 + 0x400;
     road_p3 = road_p2 + 0x400;
 
-    set_default_hscroll();
-    clear_road_ram();
-    init_stage1();
+	printf("ORoad::init 2");
+
+	set_default_hscroll();
+	printf("ORoad::init 3");
+
+	clear_road_ram();
+	printf("ORoad::init 4");
+
+	init_stage1();
+	printf("ORoad::init 5");
+
 }
 
 // ----------------------------------------------------------------------------

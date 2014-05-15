@@ -22,7 +22,6 @@
 
 RomLoader::RomLoader()
 {
-
 }
 
 RomLoader::~RomLoader()
@@ -63,7 +62,7 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
     // Open rom file
     std::ifstream src(path.c_str(), std::ios::in | std::ios::binary);
     if (!src)
-    {
+	{
         std::cout << "cannot open rom: " << filename << std::endl;
         return 1; // fail
     }
@@ -91,6 +90,7 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
     // Clean Up
     delete[] buffer;
     src.close();
+
     return 0; // success
 }
 

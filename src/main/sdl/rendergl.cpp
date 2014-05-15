@@ -11,6 +11,7 @@
 ***************************************************************************/
 
 #include <iostream>
+#include <algorithm> 
 
 #include "rendergl.hpp"
 #include "frontend/config.hpp"
@@ -19,7 +20,6 @@ const static uint32_t SCANLINE_TEXTURE[] = { 0x00000000, 0xff000000 }; // BGRA 8
 
 RenderGL::RenderGL()
 {
-
 }
 
 bool RenderGL::init(int src_width, int src_height,
@@ -84,7 +84,7 @@ bool RenderGL::init(int src_width, int src_height,
     }
 
     //int bpp = info->vfmt->BitsPerPixel;
-    const int bpp = 32;
+	const int bpp = SDL_BPP;
     const int available = SDL_VideoModeOK(scn_width, scn_height, bpp, flags);
 
     // Frees (Deletes) existing surface
@@ -128,6 +128,20 @@ bool RenderGL::init(int src_width, int src_height,
         Gmask  = surface->format->Gmask;
         Bmask  = surface->format->Bmask;
     #endif
+
+	// --------------------------------------------------------------------------------------------
+	// Initalize Screen Quads
+	// --------------------------------------------------------------------------------------------
+
+	ASSIGN_VERTEX(screen[0].vertices[0], screen_xoff, screen_yoff + dst_height, 0, 1)
+	ASSIGN_VERTEX(screen[0].vertices[1], screen_xoff, screen_yoff, 0, 0)
+	ASSIGN_VERTEX(screen[0].vertices[2], screen_xoff + dst_width, screen_yoff + dst_height, 1, 1)
+	ASSIGN_VERTEX(screen[0].vertices[3], screen_xoff + dst_width, screen_yoff, 1, 0)
+
+	ASSIGN_VERTEX(screen[1].vertices[0], screen_xoff, screen_yoff + dst_height, 0, S16_HEIGHT)
+	ASSIGN_VERTEX(screen[1].vertices[1], screen_xoff, screen_yoff, 0, 0)
+	ASSIGN_VERTEX(screen[1].vertices[2], screen_xoff + dst_width, screen_yoff + dst_height, src_width, S16_HEIGHT)
+	ASSIGN_VERTEX(screen[1].vertices[3], screen_xoff + dst_width, screen_yoff, src_width, 0)
 
     // --------------------------------------------------------------------------------------------
     // Initalize Open GL
@@ -178,55 +192,11 @@ bool RenderGL::init(int src_width, int src_height,
                      SCANLINE_TEXTURE);
     }
 
-    // Initalize D-List
-    dlist = glGenLists(1);
-    glNewList(dlist, GL_COMPILE);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0, scn_width, scn_height, 0, 0, 1);         // left, right, bottom, top, near, far
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
-    glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, textures[SCREEN]);     // Select Screen Texture
-        glBegin(GL_QUADS);
-            glTexCoord2i(0, 1);
-            glVertex2i  (screen_xoff,             screen_yoff + dst_height);  // lower left
-            glTexCoord2i(0, 0);
-            glVertex2i  (screen_xoff,             screen_yoff);               // upper left
-            glTexCoord2i(1, 0);
-            glVertex2i  (screen_xoff + dst_width, screen_yoff);               // upper right
-            glTexCoord2i(1, 1);
-            glVertex2i  (screen_xoff + dst_width, screen_yoff + dst_height);  // lower right
-        glEnd();
-
-        if (scanlines)
-        {
-            glEnable(GL_BLEND);
-                glColor4ub(255, 255, 255, ((scanlines - 1) << 8) / 100);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                glBindTexture(GL_TEXTURE_2D, textures[SCANLN]);
-                glBegin(GL_QUADS);
-                    glTexCoord2i(0, S16_HEIGHT);
-                    glVertex2i  (screen_xoff,             screen_yoff + dst_height);  // lower left
-                    glTexCoord2i(0, 0);
-                    glVertex2i  (screen_xoff,             screen_yoff);               // upper left
-                    glTexCoord2i(src_width, 0);
-                    glVertex2i  (screen_xoff + dst_width, screen_yoff);               // upper right
-                    glTexCoord2i(src_width, S16_HEIGHT);
-                    glVertex2i  (screen_xoff + dst_width, screen_yoff + dst_height);  // lower right
-                glEnd();
-            glDisable(GL_BLEND);
-        }
-    glDisable(GL_TEXTURE_2D);
-    glPopMatrix();
-    glEndList();
-
     return true;
 }
 
 void RenderGL::disable()
 {
-    glDeleteLists(dlist, 1);
     glDeleteTextures(scanlines ? 2 : 1, textures);
 }
 
@@ -248,8 +218,8 @@ void RenderGL::draw_frame(uint16_t* pixels)
     uint32_t* spix = screen_pixels;
 
     // Lookup real RGB value from rgb array for backbuffer
-    for (int i = 0; i < (src_width * src_height); i++)
-        *(spix++) = rgb[*(pixels++) & ((S16_PALETTE_ENTRIES * 3) - 1)];
+	for (int i = 0; i < (src_width * src_height); ++i)
+		*(spix++) = rgb[*(pixels++) & ((S16_PALETTE_ENTRIES * 3) - 1)];
 
     glBindTexture(GL_TEXTURE_2D, textures[SCREEN]);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,            // target, LOD, xoff, yoff
@@ -258,7 +228,43 @@ void RenderGL::draw_frame(uint16_t* pixels)
             GL_UNSIGNED_INT_8_8_8_8_REV,               // data type of pixel data
             screen_pixels);                            // pointer in image memory
 
-    glCallList(dlist);
-    //glFinish();
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, scn_width, scn_height, 0, 0, 1);         // left, right, bottom, top, near, far
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[SCREEN]);     // Select Screen Texture
+
+	glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), screen[0].vertices[0].pos);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), screen[0].vertices[0].texcoord);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	if (scanlines)
+	{
+		glEnable(GL_BLEND);
+		glColor4ub(255, 255, 255, ((scanlines - 1) << 8) / 100);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBindTexture(GL_TEXTURE_2D, textures[SCANLN]);
+
+		glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), screen[1].vertices[0].pos);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), screen[1].vertices[0].texcoord);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glDisable(GL_BLEND);
+	}
+
+	glDisable(GL_TEXTURE_2D);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glPopMatrix();
+
     SDL_GL_SwapBuffers();
 }

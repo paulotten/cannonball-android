@@ -23,6 +23,10 @@
 
 #include "frontend/ttrial.hpp"
 
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
+
 // Logo Y Position
 const static int16_t LOGO_Y = -60;
 
@@ -142,8 +146,10 @@ void Menu::populate()
     menu_timetrial.push_back(ENTRY_TRAFFIC);
     menu_timetrial.push_back(ENTRY_BACK);
 
+	#if !defined (__ANDROID__)
     menu_settings.push_back(ENTRY_VIDEO);
-    #ifdef COMPILE_SOUND_CODE
+	#endif    
+	#ifdef COMPILE_SOUND_CODE
     menu_settings.push_back(ENTRY_SOUND);
     #endif
     menu_settings.push_back(ENTRY_CONTROLS);
@@ -247,13 +253,19 @@ void Menu::init()
 
     outrun.game_state = GS_INIT;
 
+	printf("Menu::init 0");
+
     set_menu(&menu_main);
     refresh_menu();
 
+#ifdef COMPILE_SOUND_CODE
     // Reset audio, so we can play tones
     osoundint.has_booted = true;
     osoundint.init();
     cannonball::audio.clear_wav();
+#endif
+
+	printf("Menu::init 1");
 
     frame = 0;
     message_counter = 0;

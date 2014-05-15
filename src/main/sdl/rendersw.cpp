@@ -9,6 +9,11 @@
 ***************************************************************************/
 
 #include <iostream>
+#include <algorithm> 
+
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
 
 #include "rendersw.hpp"
 #include "frontend/config.hpp"
@@ -42,7 +47,7 @@ bool RenderSW::init(int src_width, int src_height,
     if (!RenderBase::sdl_screen_size())
         return false;
 
-    int flags = SDL_FLAGS;
+	int flags = SDL_FLAGS;
 
     // --------------------------------------------------------------------------------------------
     // Full Screen Mode
@@ -122,8 +127,10 @@ bool RenderSW::init(int src_width, int src_height,
     }
 
     //int bpp = info->vfmt->BitsPerPixel;
-    const int bpp = 32;
+    const int bpp = SDL_BPP;
     const int available = SDL_VideoModeOK(scn_width, scn_height, bpp, flags);
+
+	printf("RenderSW::init 1");
 
     // Frees (Deletes) existing surface
     if (surface)
@@ -131,6 +138,8 @@ bool RenderSW::init(int src_width, int src_height,
 
     // Set the video mode
     surface = SDL_SetVideoMode(scn_width, scn_height, bpp, flags);
+
+	printf("RenderSW::init 2");
 
     if (!surface || !available)
     {

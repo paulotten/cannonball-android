@@ -7,6 +7,10 @@
     See license.txt for more details.
 ***************************************************************************/
 
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
+
 #include "setup.hpp"
 #include "main.hpp"
 #include "trackloader.hpp"
@@ -74,15 +78,28 @@ void Outrun::init()
     select_course(config.engine.jap != 0, config.engine.prototype != 0);
     video.clear_text_ram();
 
+	printf("Outrun::init 0");
+
     tick_counter = 0;
     // Initialize default hi-score entries
-    ohiscore.init_def_scores();
+	ohiscore.init_def_scores();
+
+	printf("Outrun::init 1");
+
     // Load saved hi-score entries
-    config.load_scores(cannonball_mode == Outrun::MODE_ORIGINAL ? FILENAME_SCORES : FILENAME_CONT);        
-    ostats.init(cannonball_mode == MODE_TTRIAL);
-    init_jump_table();
+	config.load_scores(cannonball_mode == Outrun::MODE_ORIGINAL ? FILENAME_SCORES : FILENAME_CONT);
+	printf("Outrun::init 2");
+
+	ostats.init(cannonball_mode == MODE_TTRIAL);
+	printf("Outrun::init 3");
+
+	init_jump_table();
+	printf("Outrun::init 4");
+
     oinitengine.init(cannonball_mode == MODE_TTRIAL ? ttrial.level : 0);
-    osoundint.init();
+	osoundint.init();
+	printf("Outrun::init 5");
+
     outils::reset_random_seed(); // Ensure we match the genuine boot up of the original game each time
 }
 

@@ -8,6 +8,10 @@
 // Error reporting
 #include <iostream>
 
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
+
 // SDL Library
 #include <SDL.h>
 #pragma comment(lib, "SDLmain.lib") // Replace main with SDL_main
@@ -118,68 +122,70 @@ static void tick()
 
     process_events();
 
-    switch(state)
-    {
-        case STATE_GAME:
-        {
-            if (input.has_pressed(Input::TIMER))
-                outrun.freeze_timer = !outrun.freeze_timer;
+	switch (state)
+	{
+		case STATE_GAME:
+		{
+			if (input.has_pressed(Input::TIMER))
+				outrun.freeze_timer = !outrun.freeze_timer;
 
-            if (input.has_pressed(Input::PAUSE))
-                pause_engine = !pause_engine;
+			if (input.has_pressed(Input::PAUSE))
+				pause_engine = !pause_engine;
 
-            if (input.has_pressed(Input::MENU))
-                state = STATE_INIT_MENU;
+			if (input.has_pressed(Input::MENU))
+				state = STATE_INIT_MENU;
 
-            if (!pause_engine || input.has_pressed(Input::STEP))
-            {
-                outrun.tick(tick_frame);
-                input.frame_done(); // Denote keys read
+			if (!pause_engine || input.has_pressed(Input::STEP))
+			{
+				outrun.tick(tick_frame);
+				input.frame_done(); // Denote keys read
 
-                #ifdef COMPILE_SOUND_CODE
-                // Tick audio program code
-                osoundint.tick();
-                // Tick SDL Audio
-                audio.tick();
-                #endif
-            }
-            else
-            {                
-                input.frame_done(); // Denote keys read
-            }
-        }
-        break;
-
-        case STATE_INIT_GAME:
-            if (config.engine.jap && !roms.load_japanese_roms())
-            {
-                state = STATE_QUIT;
-            }
-            else
-            {
-                pause_engine = false;
-                outrun.init();
-                state = STATE_GAME;
-            }
-            break;
-
+	#ifdef COMPILE_SOUND_CODE
+				// Tick audio program code
+				osoundint.tick();
+				// Tick SDL Audio
+				audio.tick();
+	#endif
+			}
+			else
+			{
+				input.frame_done(); // Denote keys read
+			}
+			break;
+		}
+		case STATE_INIT_GAME:
+		{
+			if (config.engine.jap && !roms.load_japanese_roms())
+			{
+				state = STATE_QUIT;
+			}
+			else
+			{
+				pause_engine = false;
+				printf("outrun.init");
+				outrun.init();
+				state = STATE_GAME;
+			}
+			break;
+		}
         case STATE_MENU:
         {
             menu.tick();
             input.frame_done();
             #ifdef COMPILE_SOUND_CODE
-            // Tick audio program code
-            osoundint.tick();
-            // Tick SDL Audio
-            audio.tick();
+				// Tick audio program code
+				osoundint.tick();
+				// Tick SDL Audio
+				audio.tick();
             #endif
+			break;
         }
-        break;
-
-        case STATE_INIT_MENU:
-            menu.init();
-            state = STATE_MENU;
-            break;
+		case STATE_INIT_MENU:
+		{
+			menu.init();
+			state = STATE_MENU;
+			break;
+		}
     }
     // Draw SDL Video
     video.draw_frame();  
@@ -243,17 +249,21 @@ int main(int argc, char* argv[])
         return 1; 
     }
 
+#ifdef __ANDROID__
+	SDL_SetVideoMode(796, 448, SDL_BPP, SDL_OPENGL);
+#endif
+
     bool loaded = false;
 
     // Load LayOut File
     if (argc == 3 && strcmp(argv[1], "-file") == 0)
-    {
+	{
         if (trackloader.set_layout_track(argv[2]))
             loaded = roms.load_revb_roms(); 
     }
     // Load Roms Only
     else
-    {
+	{
         loaded = roms.load_revb_roms();
     }
 
@@ -261,7 +271,7 @@ int main(int argc, char* argv[])
     //loaded = roms.load_revb_roms();
 
     if (loaded)
-    {
+	{
         // Load XML Config
         config.load(FILENAME_CONFIG);
 
@@ -288,7 +298,7 @@ int main(int argc, char* argv[])
 
         if (config.controls.haptic) 
             config.controls.haptic = forcefeedback::init(config.controls.max_force, config.controls.min_force, config.controls.force_duration);
-        
+
         // Populate menus
         menu.populate();
         main_loop();  // Loop until we quit the app

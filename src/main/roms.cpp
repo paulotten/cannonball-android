@@ -8,6 +8,10 @@
 #include "stdint.hpp"
 #include "roms.hpp"
 
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
+
 Roms roms;
 
 Roms::Roms()
