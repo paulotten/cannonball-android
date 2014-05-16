@@ -253,3 +253,7 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+android/libs/armeabi/gdb.setup
+android/libs/armeabi/gdbserver
+roms/epr-10381b.132
+android/proguard-project.txt

@@ -90,5 +90,10 @@ Execute the below commands from the msys environment.
   
 Android Build
 -------------
-  
+ 
+	cd android
+	android update project -p .
+	ndk-build
+	ant debug
 
+	ant installd
