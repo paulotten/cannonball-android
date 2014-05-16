@@ -88,7 +88,7 @@ bool RenderGLES::init(int src_width, int src_height,
     }
 
     //int bpp = info->vfmt->BitsPerPixel;
-	const int bpp = 16;
+	const int bpp = SDL_BPP;
     const int available = SDL_VideoModeOK(scn_width, scn_height, bpp, flags);
 
     // Frees (Deletes) existing surface
