@@ -483,4 +483,155 @@ int PlayFile ()
     
         // start processing of the audio unit
         result = AudioOutputUnitStart (theUnit);
-            if (result) goto bail; //THROW_RESULT("PlayFile: AudioOutputUnitStart"
+            if (result) goto bail; //THROW_RESULT("PlayFile: AudioOutputUnitStart")
+        
+    /*}
+    catch (...)
+    {
+        goto bail;
+    }*/
+    
+    result = 0;
+    
+bail:
+    return result;
+}
+
+int PauseFile ()
+{
+    OSStatus result = -1;
+    
+    if (CheckInit () < 0)
+        goto bail;
+            
+    /*try {*/
+    
+        /* stop processing the audio unit */
+        result = AudioOutputUnitStop (theUnit);
+            if (result) goto bail;  /*THROW_RESULT("PauseFile: AudioOutputUnitStop")*/
+    /*}
+      catch (...)
+      {
+          goto bail;
+      }*/
+    
+    result = 0;
+bail:
+    return result;
+}
+
+void SetCompletionProc (CDPlayerCompletionProc proc, SDL_CD *cdrom)
+{
+    assert(thePlayer != NULL);
+
+    theCDROM = cdrom;
+    completionProc = proc;
+    thePlayer->SetNotifier (thePlayer, FilePlayNotificationHandler, cdrom);
+}
+
+int GetCurrentFrame ()
+{    
+    int frame;
+    
+    if (thePlayer == NULL)
+        frame = 0;
+    else
+        frame = thePlayer->GetCurrentFrame (thePlayer);
+        
+    return frame; 
+}
+
+
+#pragma mark -- Private Functions --
+
+static OSStatus CheckInit ()
+{    
+    if (playBackWasInit)
+        return 0;
+    
+    OSStatus result = noErr;
+    
+    /* Create the callback semaphore */
+    callbackSem = SDL_CreateSemaphore(0);
+
+    /* Start callback thread */
+    SDL_CreateThread(RunCallBackThread, NULL);
+
+    { /*try {*/
+        ComponentDescription desc;
+    
+        desc.componentType = kAudioUnitType_Output;
+        desc.componentSubType = kAudioUnitSubType_DefaultOutput;
+        desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+        desc.componentFlags = 0;
+        desc.componentFlagsMask = 0;
+        
+        Component comp = FindNextComponent (NULL, &desc);
+        if (comp == NULL) {
+            SDL_SetError ("CheckInit: FindNextComponent returned NULL");
+            if (result) return -1; //throw(internalComponentErr);
+        }
+        
+        result = OpenAComponent (comp, &theUnit);
+            if (result) return -1; //THROW_RESULT("CheckInit: OpenAComponent")
+                    
+        // you need to initialize the output unit before you set it as a destination
+        result = AudioUnitInitialize (theUnit);
+            if (result) return -1; //THROW_RESULT("CheckInit: AudioUnitInitialize")
+        
+                    
+        playBackWasInit = true;
+    }
+    /*catch (...)
+      {
+          return -1;
+      }*/
+    
+    return 0;
+}
+
+static void FilePlayNotificationHandler(void * inRefCon, OSStatus inStatus)
+{
+    if (inStatus == kAudioFilePlay_FileIsFinished) {
+    
+        /* notify non-CA thread to perform the callback */
+        SDL_SemPost(callbackSem);
+        
+    } else if (inStatus == kAudioFilePlayErr_FilePlayUnderrun) {
+    
+        SDL_SetError ("CDPlayer Notification: buffer underrun");
+    } else if (inStatus == kAudioFilePlay_PlayerIsUninitialized) {
+    
+        SDL_SetError ("CDPlayer Notification: player is uninitialized");
+    } else {
+        
+        SDL_SetError ("CDPlayer Notification: unknown error %ld", inStatus);
+    }
+}
+
+static int RunCallBackThread (void *param)
+{
+    for (;;) {
+    
+	SDL_SemWait(callbackSem);
+
+        if (completionProc && theCDROM) {
+            #if DEBUG_CDROM
+            printf ("callback!\n");
+            #endif
+            (*completionProc)(theCDROM);
+        } else {
+            #if DEBUG_CDROM
+            printf ("callback?\n");
+            #endif
+        }
+    }
+    
+    #if DEBUG_CDROM
+    printf ("thread dying now...\n");
+    #endif
+    
+    return 0;
+}
+
+/*}; // extern "C" */

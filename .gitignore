@@ -257,3 +257,11 @@ android/libs/armeabi/gdb.setup
 android/libs/armeabi/gdbserver
 roms/epr-10381b.132
 android/proguard-project.txt
+android/assets/roms/epr-10381b.132
+android/libs/armeabi/libsdl-1.2.so
+android/libs/armeabi/libcannonball.so
+android/gen/com/octodev/cannonball/BuildConfig.java
+android/gen/com/octodev/cannonball/R.java
+android/gen/R.java.d
+android/assets/roms/roms.txt
+android/assets/roms/roms.txt
