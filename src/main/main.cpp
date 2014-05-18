@@ -95,6 +95,18 @@ static void process_events(void)
                 input.handle_joy_up(&event.jbutton);
                 break;
 
+			case SDL_MOUSEMOTION:
+
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				//input.handle_mouse_down(&event.mbutton);
+				break;
+
+			case SDL_MOUSEBUTTONUP:
+				//input.handle_mouse_up(&event.mbutton);
+				break;
+
             case SDL_QUIT:
                 // Handle quit requests (like Ctrl-c).
                 state = STATE_QUIT;

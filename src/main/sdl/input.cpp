@@ -336,3 +336,13 @@ void Input::handle_joy(const uint8_t button, const bool is_pressed)
     if (button == pad_config[7])
         keys[VIEWPOINT] = is_pressed;
 }
+
+void Input::handle_mouse_down(SDL_MouseEvent* evt)
+{
+	
+}
+
+void Input::handle_mouse_up(SDL_MouseEvent* evt)
+{
+
+}

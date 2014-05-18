@@ -152,7 +152,9 @@ void Menu::populate()
 	#ifdef COMPILE_SOUND_CODE
     menu_settings.push_back(ENTRY_SOUND);
     #endif
-    menu_settings.push_back(ENTRY_CONTROLS);
+	#if !defined (__ANDROID__)
+	menu_settings.push_back(ENTRY_CONTROLS);
+	#endif    
     menu_settings.push_back(ENTRY_ENGINE);
     menu_settings.push_back(ENTRY_SCORES);
     menu_settings.push_back(ENTRY_SAVE);
@@ -417,6 +419,8 @@ void Menu::draw_text(std::string s)
 void Menu::tick_menu()
 {
     // Tick Controls
+	//Mouse input!!
+
     if (input.has_pressed(Input::DOWN) || input.is_analog_r())
     {
         osoundint.queue_sound(sound::BEEP1);

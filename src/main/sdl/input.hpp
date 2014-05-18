@@ -15,6 +15,7 @@
 class Input
 {
 public:
+
     enum presses
     {
         LEFT  = 0,
@@ -38,6 +39,8 @@ public:
 
     bool keys[15];
     bool keys_old[15];
+
+	bool touch;
 
     // Has gamepad been found?
     bool gamepad;
@@ -67,6 +70,8 @@ public:
     void handle_joy_axis(SDL_JoyAxisEvent*);
     void handle_joy_down(SDL_JoyButtonEvent*);
     void handle_joy_up(SDL_JoyButtonEvent*);
+	void handle_mouse_down(SDL_MouseEvent*);
+	void handle_mouse_up(SDL_MouseEvent*);
     void frame_done();
     bool is_pressed(presses p);
     bool has_pressed(presses p);
@@ -95,8 +100,9 @@ private:
     static const int DELAY_RESET = 60;
     int delay;
 
-    void handle_key(const int, const bool);
+	void handle_key(const int, const bool);
     void handle_joy(const uint8_t, const bool);
+	void handle_mouse(const int, const bool);
 };
 
 extern Input input;
