@@ -16,6 +16,8 @@
 
 #include "globals.hpp"
 
+#undef END_PATH
+
 // Road Generator Palette Representation
 struct RoadPalette
 {

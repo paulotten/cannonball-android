@@ -34,6 +34,11 @@ struct menu_settings_t
     int road_scroll_speed;
 };
 
+struct overlay_settings_t
+{
+	int enabled;
+};
+
 struct video_settings_t
 {
     const static int MODE_WINDOW  = 0;
@@ -102,6 +107,7 @@ class Config
 {
 public:
     menu_settings_t     menu;
+	overlay_settings_t	overlay;
     video_settings_t    video;
     sound_settings_t    sound;
     controls_settings_t controls;

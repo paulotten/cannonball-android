@@ -39,6 +39,8 @@ void Overlay::init(void)
 		//return 1; // fail
 	}
 
+	length = filesize(path.c_str());
+
 	// Read file
 	char* buffer = new char[length];
 	src.read(buffer, length);
@@ -68,11 +70,11 @@ void Overlay::init(void)
 	// Initalize Panel Quads
 	// --------------------------------------------------------------------------------------------
 	
-	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 1, 0, 1)
+	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 1, 0, 128)
 	ASSIGN_VERTEX(panels[DPAD].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[DPAD].vertices[2], 1, 1, 1, 1)
-	ASSIGN_VERTEX(panels[DPAD].vertices[3], 1, 0, 1, 0)
-
+	ASSIGN_VERTEX(panels[DPAD].vertices[2], 1, 1, 128, 128)
+	ASSIGN_VERTEX(panels[DPAD].vertices[3], 1, 0, 128, 0)
+	
 	ASSIGN_VERTEX(panels[ACCEL].vertices[0], 0, 1, 0, 1)
 	ASSIGN_VERTEX(panels[ACCEL].vertices[1], 0, 0, 0, 0)
 	ASSIGN_VERTEX(panels[ACCEL].vertices[2], 1, 1, 1, 1)
@@ -101,5 +103,41 @@ void Overlay::tick(void)
 
 void Overlay::draw(void)
 {
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	//glOrtho(0, scn_width, scn_height, 0, 0, 1);         // left, right, bottom, top, near, far
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+
+	for (int i = 0; i < 5; ++i)
+	{
+		glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	}
+
+	glDisable(GL_TEXTURE_2D);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glPopMatrix();
+
+	//SDL_GL_SwapBuffers();
+}
+
+int Overlay::filesize(const char* filename)
+{
+	std::ifstream in(filename, std::ifstream::in | std::ifstream::binary);
+	in.seekg(0, std::ifstream::end);
+	int size = (int)in.tellg();
+	in.close();
+	return size;
 }

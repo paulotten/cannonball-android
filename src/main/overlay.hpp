@@ -12,7 +12,6 @@
 #pragma once
 
 #include "stdint.hpp"
-#include "globals.hpp"
 #include "quad.hpp"
 
 #include <SDL_opengl.h>
@@ -31,6 +30,8 @@ public:
 	void draw();
 
 private:
+
+	int filesize(const char*);
 
 	// Panel IDs
 	const static int DPAD = 0;

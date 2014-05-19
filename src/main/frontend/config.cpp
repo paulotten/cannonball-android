@@ -64,6 +64,12 @@ void Config::load(const std::string &filename)
     menu.enabled           = pt_config.get("menu.enabled",   1);
     menu.road_scroll_speed = pt_config.get("menu.roadspeed", 50);
 
+	// ------------------------------------------------------------------------
+	// Overlay Settings
+	// ------------------------------------------------------------------------
+
+	overlay.enabled		= pt_config.get("overlay.enabled", 1);
+
     // ------------------------------------------------------------------------
     // Video Settings
     // ------------------------------------------------------------------------

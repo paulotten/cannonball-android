@@ -22,6 +22,7 @@
 #include "sdl/timer.hpp"
 #include "sdl/input.hpp"
 #include "video.hpp"
+#include "overlay.hpp"
 
 #include "romloader.hpp"
 #include "trackloader.hpp"
@@ -173,8 +174,12 @@ static void tick()
 			}
 			else
 			{
+				if (config.overlay.enabled)
+				{
+					overlay.init();
+				}
+
 				pause_engine = false;
-				printf("outrun.init");
 				outrun.init();
 				state = STATE_GAME;
 			}
