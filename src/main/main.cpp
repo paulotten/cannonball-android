@@ -100,11 +100,11 @@ static void process_events(void)
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				//input.handle_mouse_down(&event.mbutton);
+				input.handle_mouse_down(&event.button);
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				//input.handle_mouse_up(&event.mbutton);
+				input.handle_mouse_up(&event.button);
 				break;
 
             case SDL_QUIT:

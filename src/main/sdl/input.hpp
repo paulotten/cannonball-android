@@ -70,8 +70,8 @@ public:
     void handle_joy_axis(SDL_JoyAxisEvent*);
     void handle_joy_down(SDL_JoyButtonEvent*);
     void handle_joy_up(SDL_JoyButtonEvent*);
-	void handle_mouse_down(SDL_MouseEvent*);
-	void handle_mouse_up(SDL_MouseEvent*);
+	void handle_mouse_down(SDL_MouseButtonEvent*);
+	void handle_mouse_up(SDL_MouseButtonEvent*);
     void frame_done();
     bool is_pressed(presses p);
     bool has_pressed(presses p);

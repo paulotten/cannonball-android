@@ -337,12 +337,12 @@ void Input::handle_joy(const uint8_t button, const bool is_pressed)
         keys[VIEWPOINT] = is_pressed;
 }
 
-void Input::handle_mouse_down(SDL_MouseEvent* evt)
+void Input::handle_mouse_down(SDL_MouseButtonEvent* evt)
 {
 	
 }
 
-void Input::handle_mouse_up(SDL_MouseEvent* evt)
+void Input::handle_mouse_up(SDL_MouseButtonEvent* evt)
 {
 
 }

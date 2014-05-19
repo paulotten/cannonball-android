@@ -13,6 +13,9 @@
 
 #include "stdint.hpp"
 #include "globals.hpp"
+#include "quad.hpp"
+
+#include <SDL_opengl.h>
 
 class Overlay
 {
@@ -21,9 +24,24 @@ public:
 	Overlay();
 	~Overlay();
 
+	void init();
+
+	void tick();
+
+	void draw();
+
 private:
 
-	void loadPNG(char*);
+	// Panel IDs
+	const static int DPAD = 0;
+	const static int ACCEL = 1;
+	const static int BRAKE = 2;
+	const static int GEAR = 3;
+	const static int MENU = 4;
+
+	GLuint textureAtlas;
+
+	quad_t panels[5];
 
 };
 

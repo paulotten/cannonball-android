@@ -13,6 +13,7 @@
 #pragma once
 
 #include "renderbase.hpp"
+#include "quad.hpp"
 
 #include <GLES/gl.h>
 

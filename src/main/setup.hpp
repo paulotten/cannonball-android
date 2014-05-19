@@ -8,7 +8,7 @@
 const static char* FILENAME_CONFIG = "/sdcard/config.xml";
 const static char* FILENAME_SCORES = "/sdcard/hiscores";
 const static char* FILENAME_TTRIAL = "/sdcard/hiscores_timetrial";
-const static char* FILENAME_CONT = "/sdcard/hiscores_continuous";
+const static char* FILENAME_CONT   = "/sdcard/hiscores_continuous";
 const static int SDL_FLAGS = SDL_SWSURFACE | SDL_DOUBLEBUF;
 const static int SDL_BPP = 16;
 
@@ -17,8 +17,9 @@ const static int SDL_BPP = 16;
 const static char* FILENAME_CONFIG = "./config.xml";
 const static char* FILENAME_SCORES = "./hiscores";
 const static char* FILENAME_TTRIAL = "./hiscores_timetrial";
-const static char* FILENAME_CONT = "./hiscores_continuous";
+const static char* FILENAME_CONT   = "./hiscores_continuous";
 const static int SDL_FLAGS = SDL_SWSURFACE | SDL_DOUBLEBUF;
 const static int SDL_BPP = 32;
 
 #endif
+    

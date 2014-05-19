@@ -10,14 +10,11 @@
 ***************************************************************************/
 
 #include <iostream>
-
-#ifdef __ANDROID__
-#include "android_debug.h"
-#endif
+#include <fstream>
 
 #include "overlay.hpp"
 
-#include <png.h>
+#include <stb_image.c>
 
 Overlay overlay;
 
@@ -29,66 +26,80 @@ Overlay::~Overlay(void)
 {
 }
 
-void Overlay::loadPNG(char* filename)
+void Overlay::init(void)
 {
-	int x, y;
+	int x, y, comp, length;
+	unsigned char *data;
 
-	int width, height;
-	png_byte color_type;
-	png_byte bit_depth;
+	std::string path = "res/overlay/main.png";
+	std::ifstream src(path.c_str(), std::ios::in | std::ios::binary);
+	if (!src)
+	{
+		std::cout << "cannot open rom: " << "" << std::endl;
+		//return 1; // fail
+	}
 
-	png_structp png_ptr;
-	png_infop info_ptr;
-	int number_of_passes;
-	png_bytep * row_pointers;
+	// Read file
+	char* buffer = new char[length];
+	src.read(buffer, length);
 
-	char header[8];
+	data = stbi_load_from_memory((unsigned char*)buffer, length, &x, &y, &comp, 0);
 
-	/* open file and test for it being a png */
-	FILE *fp = fopen(file_name, "rb");
-	if (!fp)
-		abort_("[read_png_file] File %s could not be opened for reading", file_name);
-	fread(header, 1, 8, fp);
-	if (png_sig_cmp(header, 0, 8))
-		abort_("[read_png_file] File %s is not recognized as a PNG file", file_name);
+	delete[] buffer;
+	src.close();
 
+	//assign texture
 
-	/* initialize stuff */
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	stbi_image_free(data);
 
-	if (!png_ptr)
-		abort_("[read_png_file] png_create_read_struct failed");
+	glGenTextures(1, &textureAtlas); 
+	
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+		1, 1, 0,                // texture width, texture height
+		GL_RGBA, GL_UNSIGNED_SHORT_5_6_5,    // Data format in pixel array
+		NULL);
 
-	info_ptr = png_create_info_struct(png_ptr);
-	if (!info_ptr)
-		abort_("[read_png_file] png_create_info_struct failed");
+	// --------------------------------------------------------------------------------------------
+	// Initalize Panel Quads
+	// --------------------------------------------------------------------------------------------
+	
+	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 1, 0, 1)
+	ASSIGN_VERTEX(panels[DPAD].vertices[1], 0, 0, 0, 0)
+	ASSIGN_VERTEX(panels[DPAD].vertices[2], 1, 1, 1, 1)
+	ASSIGN_VERTEX(panels[DPAD].vertices[3], 1, 0, 1, 0)
 
-	if (setjmp(png_jmpbuf(png_ptr)))
-		abort_("[read_png_file] Error during init_io");
+	ASSIGN_VERTEX(panels[ACCEL].vertices[0], 0, 1, 0, 1)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[1], 0, 0, 0, 0)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[2], 1, 1, 1, 1)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[3], 1, 0, 1, 0)
 
-	png_init_io(png_ptr, fp);
-	png_set_sig_bytes(png_ptr, 8);
+	ASSIGN_VERTEX(panels[BRAKE].vertices[0], 0, 1, 0, 1)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[1], 0, 0, 0, 0)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[2], 1, 1, 1, 1)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[3], 1, 0, 1, 0)
 
-	png_read_info(png_ptr, info_ptr);
+	ASSIGN_VERTEX(panels[GEAR].vertices[0], 0, 1, 0, 1)
+	ASSIGN_VERTEX(panels[GEAR].vertices[1], 0, 0, 0, 0)
+	ASSIGN_VERTEX(panels[GEAR].vertices[2], 1, 1, 1, 1)
+	ASSIGN_VERTEX(panels[GEAR].vertices[3], 1, 0, 1, 0)
 
-	width = png_get_image_width(png_ptr, info_ptr);
-	height = png_get_image_height(png_ptr, info_ptr);
-	color_type = png_get_color_type(png_ptr, info_ptr);
-	bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+	ASSIGN_VERTEX(panels[MENU].vertices[0], 0, 1, 0, 1)
+	ASSIGN_VERTEX(panels[MENU].vertices[1], 0, 0, 0, 0)
+	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
+	ASSIGN_VERTEX(panels[MENU].vertices[3], 1, 0, 1, 0)
+}
 
-	number_of_passes = png_set_interlace_handling(png_ptr);
-	png_read_update_info(png_ptr, info_ptr);
+void Overlay::tick(void)
+{
+	//check if buttons are pushed hopefully via SDL_MouseButtonEvent
+}
 
+void Overlay::draw(void)
+{
 
-	/* read file */
-	if (setjmp(png_jmpbuf(png_ptr)))
-		abort_("[read_png_file] Error during read_image");
-
-	row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
-	for (y = 0; y<height; y++)
-		row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png_ptr, info_ptr));
-
-	png_read_image(png_ptr, row_pointers);
-
-	fclose(fp);
 }

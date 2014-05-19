@@ -1,8 +1,3 @@
-# If SDL_Mixer should link to GPL-polluted libMAD (TODO: move this out of here)
-SDL_MIXER_USE_LIBMAD :=
-ifneq ($(strip $(filter mad, $(COMPILED_LIBRARIES))),)
-SDL_MIXER_USE_LIBMAD := 1
-endif
 
 NDK_VERSION := $(strip $(patsubst android-ndk-%,%,$(filter android-ndk-%, $(subst /, ,$(dir $(TARGET_CC))))))
 #$(info NDK version $(NDK_VERSION)) # This warning puzzles ndk-gdb

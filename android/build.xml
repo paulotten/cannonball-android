@@ -15,6 +15,10 @@
 		<copy todir="assets/roms">
 			<fileset dir="../roms" />
 		</copy>
+		<delete dir="assets/overlay"/>
+		<copy todir="assets/overlay">
+			<fileset dir="../res/overlay" />
+		</copy>
 	</target>
     
     <import file="custom_rules.xml" optional="true" />

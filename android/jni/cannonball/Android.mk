@@ -1,5 +1,5 @@
-LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
+LOCAL_PATH := $(call my-dir)
 
 LOCAL_SRC_PATH := ../../../src/main/
 LOCAL_MODULE := cannonball
@@ -13,8 +13,8 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/src \
 	$(LOCAL_PATH)/../../../src/main \
 	$(LOCAL_PATH)/../../../src/main/sdl \
-	$(LOCAL_PATH)/../boost/include \
-	$(LOCAL_PATH)/../sdl-$(SDL_VERSION)/include
+	$(LOCAL_PATH)/../sdl-$(SDL_VERSION)/include \
+	$(BOOST_ROOT)/include \
 
 LOCAL_SRC_FILES := \
 	$(LOCAL_SRC_PATH)directx/ffeedback.cpp \
@@ -64,6 +64,8 @@ LOCAL_SRC_FILES := \
 	$(LOCAL_SRC_PATH)trackloader.cpp \
 	$(LOCAL_SRC_PATH)utils.cpp \
 	$(LOCAL_SRC_PATH)video.cpp \
+	$(LOCAL_SRC_PATH)overlay.cpp \
+	src/stb_image.c \
 	src/main_android.c \
 
 LOCAL_CFLAGS := -DSDL_JAVA_PACKAGE_PATH=$(SDL_JAVA_PACKAGE_PATH) \
