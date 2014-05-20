@@ -29,9 +29,9 @@ Overlay::~Overlay(void)
 void Overlay::init(void)
 {
 	int x, y, comp, length;
-	unsigned char *data;
+	stbi_uc* data;
 
-	std::string path = "res/overlay/main.png";
+	std::string path = "res/overlay/main.tga";
 	std::ifstream src(path.c_str(), std::ios::in | std::ios::binary);
 	if (!src)
 	{
@@ -51,9 +51,6 @@ void Overlay::init(void)
 	src.close();
 
 	//assign texture
-
-	stbi_image_free(data);
-
 	glGenTextures(1, &textureAtlas); 
 	
 	glBindTexture(GL_TEXTURE_2D, textureAtlas);
@@ -62,19 +59,21 @@ void Overlay::init(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-		1, 1, 0,                // texture width, texture height
-		GL_RGBA, GL_UNSIGNED_SHORT_5_6_5,    // Data format in pixel array
-		NULL);
+		x, y, 0,								// texture width, texture height
+		GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV,    // Data format in pixel array
+		data);
+
+	stbi_image_free(data);
 
 	// --------------------------------------------------------------------------------------------
 	// Initalize Panel Quads
 	// --------------------------------------------------------------------------------------------
 	
-	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 1, 0, 128)
+	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 1, 0, 1)
 	ASSIGN_VERTEX(panels[DPAD].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[DPAD].vertices[2], 1, 1, 128, 128)
-	ASSIGN_VERTEX(panels[DPAD].vertices[3], 1, 0, 128, 0)
-	
+	ASSIGN_VERTEX(panels[DPAD].vertices[2], 1, 1, 1, 1)
+	ASSIGN_VERTEX(panels[DPAD].vertices[3], 1, 0, 1, 0)
+
 	ASSIGN_VERTEX(panels[ACCEL].vertices[0], 0, 1, 0, 1)
 	ASSIGN_VERTEX(panels[ACCEL].vertices[1], 0, 0, 0, 0)
 	ASSIGN_VERTEX(panels[ACCEL].vertices[2], 1, 1, 1, 1)
@@ -94,6 +93,8 @@ void Overlay::init(void)
 	ASSIGN_VERTEX(panels[MENU].vertices[1], 0, 0, 0, 0)
 	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
 	ASSIGN_VERTEX(panels[MENU].vertices[3], 1, 0, 1, 0)
+
+	active = true;
 }
 
 void Overlay::tick(void)
@@ -106,17 +107,19 @@ void Overlay::draw(void)
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
-	//glOrtho(0, scn_width, scn_height, 0, 0, 1);         // left, right, bottom, top, near, far
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
+	//glOrtho(0, scn_width, scn_height, 0, 0, 1);         // left, right, bottom, top, near, far
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textureAtlas);
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);
@@ -125,12 +128,12 @@ void Overlay::draw(void)
 
 	glDisable(GL_TEXTURE_2D);
 
+	glDisable(GL_BLEND);
+
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glPopMatrix();
-
-	//SDL_GL_SwapBuffers();
 }
 
 int Overlay::filesize(const char* filename)

@@ -15,6 +15,7 @@
 #include "android_debug.h"
 #endif
 
+#include "overlay.hpp"
 #include "video.hpp"
 #include "setup.hpp"
 #include "globals.hpp"
@@ -59,13 +60,9 @@ int Video::init(Roms* roms, video_settings_t* settings)
     if (!set_video_mode(settings))
         return 0;
 
-	printf("Video::init 0");
-
     // Internal pixel array. The size of this is always constant
     if (pixels) delete[] pixels;
     pixels = new uint16_t[config.s16_width * config.s16_height];
-
-	printf("Video::init 1");
 
     // Convert S16 tiles to a more useable format
     tile_layer->init(roms->tiles.rom, config.video.hires != 0);
@@ -77,8 +74,6 @@ int Video::init(Roms* roms, video_settings_t* settings)
         roms->tiles.rom = NULL;
     }
 
-	printf("Video::init 2");
-
     // Convert S16 sprites
     sprite_layer->init(roms->sprites.rom);
     if (roms->sprites.rom)
@@ -87,8 +82,6 @@ int Video::init(Roms* roms, video_settings_t* settings)
         roms->sprites.rom = NULL;
     }
 
-	printf("Video::init 3");
-
     // Convert S16 Road Stuff
     hwroad.init(roms->road.rom, config.video.hires != 0);
     if (roms->road.rom)
@@ -96,8 +89,6 @@ int Video::init(Roms* roms, video_settings_t* settings)
         delete[] roms->road.rom;
         roms->road.rom = NULL;
     }
-
-	printf("Video::init 4");
 
     enabled = true;
     return 1;
@@ -171,6 +162,14 @@ void Video::draw_frame()
      }
 
     renderer->draw_frame(pixels);
+
+#if defined WITH_OPENGL || defined WITH_GLES
+	if (overlay.active)
+	{
+		overlay.draw();
+	}
+#endif
+
     renderer->finalize_frame();
 }
 

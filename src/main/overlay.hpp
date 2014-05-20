@@ -29,6 +29,8 @@ public:
 
 	void draw();
 
+	int active;
+
 private:
 
 	int filesize(const char*);

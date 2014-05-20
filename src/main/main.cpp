@@ -148,6 +148,11 @@ static void tick()
 			if (input.has_pressed(Input::MENU))
 				state = STATE_INIT_MENU;
 
+			if (config.overlay.enabled && overlay.active)
+			{
+				overlay.tick();
+			}
+
 			if (!pause_engine || input.has_pressed(Input::STEP))
 			{
 				outrun.tick(tick_frame);
