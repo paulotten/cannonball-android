@@ -102,6 +102,7 @@ static void process_events(void)
 
 			case SDL_MOUSEBUTTONDOWN:
 				input.handle_mouse_down(&event.button);
+				printf("SDL_MOUSEBUTTONDOWN");
 				break;
 
 			case SDL_MOUSEBUTTONUP:
@@ -148,11 +149,6 @@ static void tick()
 			if (input.has_pressed(Input::MENU))
 				state = STATE_INIT_MENU;
 
-			if (config.overlay.enabled && overlay.active)
-			{
-				overlay.tick();
-			}
-
 			if (!pause_engine || input.has_pressed(Input::STEP))
 			{
 				outrun.tick(tick_frame);
@@ -168,6 +164,11 @@ static void tick()
 			else
 			{
 				input.frame_done(); // Denote keys read
+			}
+
+			if (config.overlay.enabled)
+			{
+				overlay.tick();
 			}
 			break;
 		}

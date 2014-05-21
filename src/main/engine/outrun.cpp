@@ -13,6 +13,7 @@
 
 #include "setup.hpp"
 #include "main.hpp"
+#include "overlay.hpp"
 #include "trackloader.hpp"
 #include "../utils.hpp"
 #include "engine/oattractai.hpp"
@@ -190,7 +191,7 @@ void Outrun::jump_table()
     {
         main_switch();                  // Address #1 (0xB128) - Main Switch
         oinputs.adjust_inputs();        // Address #2 (0x74D8) - Adjust Analogue Inputs
-    }
+	}
 
     switch (game_state)
     {

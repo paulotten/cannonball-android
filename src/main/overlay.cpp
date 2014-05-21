@@ -9,14 +9,12 @@
     See license.txt for more details.
 ***************************************************************************/
 
-//implement overlay.active into engine/outrun.cpp
-//GS_START1, GS_START2, GS_START3, GS_INGAME
-
 #include <iostream>
 #include <fstream>
 
 #include "overlay.hpp"
 #include "video.hpp"
+#include "engine\outrun.hpp"
 
 #include <stb_image.c>
 
@@ -72,28 +70,30 @@ void Overlay::init(void)
 	// --------------------------------------------------------------------------------------------
 	// Initalize Panel Quads
 	// --------------------------------------------------------------------------------------------
+
+	int scn_width = video.get_scn_width();
+	int scn_height = video.get_scn_height();
 	
-	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 128, 0, 0.5)
-	ASSIGN_VERTEX(panels[DPAD].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[DPAD].vertices[2], 128, 128, 0.5, 0.5)
-	ASSIGN_VERTEX(panels[DPAD].vertices[3], 128, 0, 0.5, 0)
+	ASSIGN_VERTEX(panels[DPAD].vertices[0], 32, scn_height - 64, 0, 0.5)
+	ASSIGN_VERTEX(panels[DPAD].vertices[1], 32, scn_height - 128 - 64, 0, 0)
+	ASSIGN_VERTEX(panels[DPAD].vertices[2], 128 + 32, scn_height - 64, 0.5, 0.5)
+	ASSIGN_VERTEX(panels[DPAD].vertices[3], 128 + 32, scn_height - 128 - 64, 0.5, 0)
 
-	ASSIGN_VERTEX(panels[ACCEL].vertices[0], 128, 128, 0, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[1], 128, 0, 0, 0.5)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[2], 256, 128, 0.5, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[3], 256, 0, 0.5, 0.5)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[0], scn_width - 128 - 32, scn_height - 64, 0, 1)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[1], scn_width - 128 - 32, scn_height - 128 - 64, 0, 0.5)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[2], scn_width - 32, scn_height - 64, 0.5, 1)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[3], scn_width - 32, scn_height - 128 - 64, 0.5, 0.5)
 
-	ASSIGN_VERTEX(panels[BRAKE].vertices[0], 0, 1, 0.6, 1)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[1], 0, 0, 0.6, 0)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[2], 1, 1, 1, 1)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[3], 1, 0, 1, 0)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[0], scn_width - 128 - 96 - 32, scn_height - 64, 0.6, 1)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[1], scn_width - 128 - 96 - 32, scn_height - 96 - 64, 0.6, 0.6)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[2], scn_width - 128 - 32, scn_height - 64, 1, 1)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[3], scn_width - 128 - 32, scn_height - 96 - 64, 1, 0.6)
 
-	ASSIGN_VERTEX(panels[GEAR].vertices[0], 0, 1, 0, 1)
-	ASSIGN_VERTEX(panels[GEAR].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[GEAR].vertices[2], 1, 1, 1, 1)
-	ASSIGN_VERTEX(panels[GEAR].vertices[3], 1, 0, 1, 0)
+	ASSIGN_VERTEX(panels[GEAR].vertices[0], scn_width - 96 - 32, scn_height - 128 - 64, 0.6, 0.6)
+	ASSIGN_VERTEX(panels[GEAR].vertices[1], scn_width - 96 - 32, scn_height - 128 - 96 - 64, 0.6, 0.2)
+	ASSIGN_VERTEX(panels[GEAR].vertices[2], scn_width - 32, scn_height - 128 - 64, 1, 0.6)
+	ASSIGN_VERTEX(panels[GEAR].vertices[3], scn_width - 32, scn_height - 128 - 96 - 64, 1, 0.2)
 
-	//?
 	ASSIGN_VERTEX(panels[MENU].vertices[0], 0, 1, 0, 1)
 	ASSIGN_VERTEX(panels[MENU].vertices[1], 0, 0, 0, 0)
 	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
@@ -104,7 +104,17 @@ void Overlay::init(void)
 
 void Overlay::tick(void)
 {
-	//check if buttons are pushed hopefully via SDL_MouseButtonEvent
+	active = outrun.game_state == GS_START1 
+		|| outrun.game_state == GS_START2
+		|| outrun.game_state == GS_START3
+		|| outrun.game_state == GS_INGAME;
+
+	if (active)
+	{
+
+
+		//check if buttons are pushed hopefully via SDL_MouseButtonEvent
+	}
 }
 
 void Overlay::draw(void)
