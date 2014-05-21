@@ -22,6 +22,9 @@ public:
     virtual void draw_frame(uint16_t* pixels) = 0;
     void convert_palette(uint32_t adr, uint32_t r, uint32_t g, uint32_t b);
 
+    // Screen width and height 
+    int scn_width, scn_height;
+
 protected:
 	SDL_Surface *surface;
 
@@ -50,9 +53,6 @@ protected:
 
     // Destination window width and height
     int dst_width, dst_height;
-
-    // Screen width and height 
-    int scn_width, scn_height;
 
     // Full-Screen, Stretch, Window
     int video_mode;

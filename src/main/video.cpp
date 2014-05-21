@@ -377,3 +377,13 @@ void Video::refresh_palette(uint32_t palAddr)
 
     renderer->convert_palette(palAddr, r, g, b);
 }
+
+int Video::get_scn_width(void)
+{
+	return renderer->scn_width;
+}
+
+int Video::get_scn_height(void)
+{
+	return renderer->scn_height;
+}

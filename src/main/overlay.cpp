@@ -9,10 +9,14 @@
     See license.txt for more details.
 ***************************************************************************/
 
+//implement overlay.active into engine/outrun.cpp
+//GS_START1, GS_START2, GS_START3, GS_INGAME
+
 #include <iostream>
 #include <fstream>
 
 #include "overlay.hpp"
+#include "video.hpp"
 
 #include <stb_image.c>
 
@@ -31,7 +35,7 @@ void Overlay::init(void)
 	int x, y, comp, length;
 	stbi_uc* data;
 
-	std::string path = "res/overlay/main.tga";
+	std::string path = "res/overlay/main.png"; //put into const
 	std::ifstream src(path.c_str(), std::ios::in | std::ios::binary);
 	if (!src)
 	{
@@ -69,18 +73,18 @@ void Overlay::init(void)
 	// Initalize Panel Quads
 	// --------------------------------------------------------------------------------------------
 	
-	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 1, 0, 1)
+	ASSIGN_VERTEX(panels[DPAD].vertices[0], 0, 128, 0, 0.5)
 	ASSIGN_VERTEX(panels[DPAD].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[DPAD].vertices[2], 1, 1, 1, 1)
-	ASSIGN_VERTEX(panels[DPAD].vertices[3], 1, 0, 1, 0)
+	ASSIGN_VERTEX(panels[DPAD].vertices[2], 128, 128, 0.5, 0.5)
+	ASSIGN_VERTEX(panels[DPAD].vertices[3], 128, 0, 0.5, 0)
 
-	ASSIGN_VERTEX(panels[ACCEL].vertices[0], 0, 1, 0, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[2], 1, 1, 1, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[3], 1, 0, 1, 0)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[0], 128, 128, 0, 1)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[1], 128, 0, 0, 0.5)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[2], 256, 128, 0.5, 1)
+	ASSIGN_VERTEX(panels[ACCEL].vertices[3], 256, 0, 0.5, 0.5)
 
-	ASSIGN_VERTEX(panels[BRAKE].vertices[0], 0, 1, 0, 1)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[1], 0, 0, 0, 0)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[0], 0, 1, 0.6, 1)
+	ASSIGN_VERTEX(panels[BRAKE].vertices[1], 0, 0, 0.6, 0)
 	ASSIGN_VERTEX(panels[BRAKE].vertices[2], 1, 1, 1, 1)
 	ASSIGN_VERTEX(panels[BRAKE].vertices[3], 1, 0, 1, 0)
 
@@ -89,6 +93,7 @@ void Overlay::init(void)
 	ASSIGN_VERTEX(panels[GEAR].vertices[2], 1, 1, 1, 1)
 	ASSIGN_VERTEX(panels[GEAR].vertices[3], 1, 0, 1, 0)
 
+	//?
 	ASSIGN_VERTEX(panels[MENU].vertices[0], 0, 1, 0, 1)
 	ASSIGN_VERTEX(panels[MENU].vertices[1], 0, 0, 0, 0)
 	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
@@ -108,7 +113,7 @@ void Overlay::draw(void)
 	glPushMatrix();
 	glLoadIdentity();
 
-	//glOrtho(0, scn_width, scn_height, 0, 0, 1);         // left, right, bottom, top, near, far
+	glOrtho(0, video.get_scn_width(), video.get_scn_height(), 0, 0, 1);         // left, right, bottom, top, near, far
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -119,7 +124,7 @@ void Overlay::draw(void)
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textureAtlas);
 
-	for (int i = 0; i < 1; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);

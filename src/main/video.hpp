@@ -66,6 +66,9 @@ public:
 	uint16_t read_pal16(uint32_t*);
 	uint16_t read_pal16(uint32_t);
     uint32_t read_pal32(uint32_t*);
+	
+	int get_scn_width(void);
+	int get_scn_height(void);
 
 private:
     // SDL Renderer
