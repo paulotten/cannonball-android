@@ -163,7 +163,8 @@ void Video::draw_frame()
 
     renderer->draw_frame(pixels);
 
-#if defined WITH_OPENGL || defined WITH_GLES
+#if defined WITH_OPENGL || \
+	defined WITH_GLES
 	if (overlay.active)
 	{
 		overlay.draw();

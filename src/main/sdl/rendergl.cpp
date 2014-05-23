@@ -175,7 +175,7 @@ bool RenderGL::init(int src_width, int src_height,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
                 src_width, src_height, 0,                // texture width, texture height
-                GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,    // Data format in pixel array
+				GL_RGBA, GL_UNSIGNED_BYTE,    // Data format in pixel array
                 NULL);
 
     // Scanline Texture Setup
@@ -188,7 +188,7 @@ bool RenderGL::init(int src_width, int src_height,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
                      1, 2, 0,
-                     GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
+					 GL_RGBA, GL_UNSIGNED_BYTE,
                      SCANLINE_TEXTURE);
     }
 
@@ -220,14 +220,18 @@ void RenderGL::draw_frame(uint16_t* pixels)
     uint32_t* spix = screen_pixels;
 
     // Lookup real RGB value from rgb array for backbuffer
+	uint32_t p = 0;
 	for (int i = 0; i < (src_width * src_height); ++i)
-		*(spix++) = rgb[*(pixels++) & ((S16_PALETTE_ENTRIES * 3) - 1)];
+	{
+		p = rgb[*(pixels++) & ((S16_PALETTE_ENTRIES * 3) - 1)];
+		*(spix++) = (p & 0xFF00FF00) | ((p & 0x00FF0000) >> 16) | ((p & 0x000000FF) << 16);
+	}
 
     glBindTexture(GL_TEXTURE_2D, textures[SCREEN]);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,            // target, LOD, xoff, yoff
             src_width, src_height,                     // texture width, texture height
-            GL_BGRA,                                   // format of pixel data
-            GL_UNSIGNED_INT_8_8_8_8_REV,               // data type of pixel data
+            GL_RGBA,                                   // format of pixel data
+			GL_UNSIGNED_BYTE,               // data type of pixel data
             screen_pixels);                            // pointer in image memory
 
 	glMatrixMode(GL_MODELVIEW);

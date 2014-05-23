@@ -62,17 +62,6 @@ void Overlay::init(void)
 
 	printf("overlay/main.png processed");
 
-	data4444 = new stbi_uc[length / 2];
-
-	stbi_uc c = 0;
-	for (int i = 0; i < length; i += 2)
-	{
-		c = (data[i] & 0xF0) | (data[i+1] >> 4);
-		data4444[i / 2] = c;
-	}
-
-	printf("overlay/main.png processed 1");
-
 	//assign texture
 	glGenTextures(1, &textureAtlas);
 
@@ -83,12 +72,11 @@ void Overlay::init(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 		x, y, 0,								// texture width, texture height
-		GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4,    // Data format in pixel array
-		data4444);
+		GL_RGBA, GL_UNSIGNED_BYTE,    // Data format in pixel array
+		data);
 
 	printf("overlay/main.png processed 2");
 
-	delete[] data4444;
 	stbi_image_free(data);
 
 	printf("overlay/main.png processed 3");

@@ -106,7 +106,7 @@ bool RenderGLES::init(int src_width, int src_height,
 
     if (screen_pixels)
         delete[] screen_pixels;
-    screen_pixels = new uint32_t[(src_width * src_height) / 2];
+    screen_pixels = new uint32_t[src_width * src_height];
 
 	Rmask = 0xFF000000;
 	Gmask = 0x00FF0000;
@@ -160,9 +160,9 @@ bool RenderGLES::init(int src_width, int src_height,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                 src_width, src_height, 0,                // texture width, texture height
-				GL_RGB, GL_UNSIGNED_SHORT_5_6_5,    // Data format in pixel array
+				GL_RGBA, GL_UNSIGNED_BYTE,    // Data format in pixel array
                 NULL);
 
     // Scanline Texture Setup
@@ -173,9 +173,9 @@ bool RenderGLES::init(int src_width, int src_height,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                      1, 2, 0,
-					 GL_RGB, GL_UNSIGNED_SHORT_5_6_5,	//Convert to shorts
+					 GL_RGBA, GL_UNSIGNED_BYTE,	//Convert to shorts
                      SCANLINE_TEXTURE);
     }
 
@@ -204,25 +204,20 @@ bool RenderGLES::finalize_frame()
 
 void RenderGLES::draw_frame(uint16_t* pixels)
 {
-	uint16_t* spix = (uint16_t*)screen_pixels;
+	uint32_t* spix = screen_pixels;
 
 	uint32_t p = 0;
-	uint8_t r = 0, g = 0, b = 0;
-	for (int i = 0; i < (src_width * src_height); i++)
+	for (int i = 0; i < (src_width * src_height); ++i)
 	{
-		// Lookup real RGB value from rgb array for backbuffer
 		p = rgb[*(pixels++) & ((S16_PALETTE_ENTRIES * 3) - 1)];
-		r = (p & 0xFF000000) >> 24;
-		g = (p & 0x00FF0000) >> 16;
-		b = (p & 0x0000FF00) >> 8;
-		*(spix++) = ((r >> 3) << 11) | ((g >> 2) << 5) | ((b >> 3));
+		*(spix++) = ((p & 0xFF000000) >> 24) | ((p & 0x00FF0000) >> 8) | ((p & 0x0000FF00) << 8);
 	}
-		
+
     glBindTexture(GL_TEXTURE_2D, textures[SCREEN]);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,            // target, LOD, xoff, yoff
             src_width, src_height,                     // texture width, texture height
-			GL_RGB,                                   // format of pixel data
-			GL_UNSIGNED_SHORT_5_6_5,               // data type of pixel data
+			GL_RGBA,                                   // format of pixel data
+			GL_UNSIGNED_BYTE,               // data type of pixel data
             screen_pixels);                            // pointer in image memory
 
 	glMatrixMode(GL_MODELVIEW);
