@@ -68,9 +68,9 @@ static void process_events(void)
     SDL_Event event;
 
     // Grab all events from the queue.
-    while(SDL_PollEvent(&event))
+    while (SDL_PollEvent(&event))
     {
-        switch(event.type)
+        switch (event.type)
         {
             case SDL_KEYDOWN:
                 // Handle key presses.
@@ -97,15 +97,16 @@ static void process_events(void)
                 break;
 
 			case SDL_MOUSEMOTION:
-
+				printf("SDL_MOUSEMOTION");
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				input.handle_mouse_down(&event.button);
 				printf("SDL_MOUSEBUTTONDOWN");
+				input.handle_mouse_down(&event.button);
 				break;
 
 			case SDL_MOUSEBUTTONUP:
+				printf("SDL_MOUSEBUTTONUP");
 				input.handle_mouse_up(&event.button);
 				break;
 
@@ -273,7 +274,7 @@ int main(int argc, char* argv[])
     }
 
 #ifdef __ANDROID__
-	SDL_SetVideoMode(796, 448, SDL_BPP, SDL_OPENGL);
+	SDL_SetVideoMode(1280, 736, SDL_BPP, SDL_OPENGL);
 #endif
 
     bool loaded = false;

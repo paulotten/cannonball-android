@@ -89,15 +89,25 @@ abstract class DifferentTouchInput
 			Log.i("SDL", "Device board: " + android.os.Build.BOARD);
 			if( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH )
 			{
+				Log.i("SDL", "Device Version : ICE_CREAM_SANDWICH");
 				if( DetectCrappyDragonRiseDatexGamepad() )
+				{
+					Log.i("SDL", "DetectCrappyDragonRiseDatexGamepad");
 					return CrappyDragonRiseDatexGamepadInputWhichNeedsItsOwnHandlerBecauseImTooCheapAndStupidToBuyProperGamepad.Holder.sInstance;
+				}
 				//return IcsTouchInput.Holder.sInstance;
 				return AutoDetectTouchInput.Holder.sInstance;
 			}
 			if( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD )
+			{
+				Log.i("SDL", "Device Version : GINGERBREAD");
 				return GingerbreadTouchInput.Holder.sInstance;
+			}
 			if (multiTouchAvailable1 && multiTouchAvailable2)
+			{
+				Log.i("SDL", "Device Version : OLD");
 				return MultiTouchInput.Holder.sInstance;
+			}
 			else
 				return SingleTouchInput.Holder.sInstance;
 		} catch( Exception e ) {
@@ -311,6 +321,7 @@ abstract class DifferentTouchInput
 					touchEvents[0].pressure = (int)((event.getAxisValue(MotionEvent.AXIS_DISTANCE) -
 							device.getMotionRange(MotionEvent.AXIS_DISTANCE).getMin()) * 1024.0f / device.getMotionRange(MotionEvent.AXIS_DISTANCE).getRange());
 				DemoGLSurfaceView.nativeMotionEvent( touchEvents[0].x, touchEvents[0].y, action, 0, touchEvents[0].pressure, touchEvents[0].size );
+				Log.i("SDL", "Mouse Motion 1");
 			}
 		}
 		public void processGenericEvent(final MotionEvent event)
@@ -327,14 +338,17 @@ abstract class DifferentTouchInput
 		private int buttonState = 0;
 		public void process(final MotionEvent event)
 		{
-			//Log.i("SDL", "Got motion event, type " + (int)(event.getAction()) + " X " + (int)event.getX() + " Y " + (int)event.getY() + " buttons " + buttonState + " source " + event.getSource());
+			Log.i("SDL", "Got motion event, type " + (int)(event.getAction()) + " X " + (int)event.getX() + " Y " + (int)event.getY() + " buttons " + buttonState + " source " + event.getSource());
 			int buttonStateNew = event.getButtonState();
 			if( buttonStateNew != buttonState )
 			{
 				for( int i = 1; i <= MotionEvent.BUTTON_FORWARD; i *= 2 )
 				{
 					if( (buttonStateNew & i) != (buttonState & i) )
+					{
+						Log.i("SDL", "Mouse 1");
 						DemoGLSurfaceView.nativeMouseButtonsPressed(i, ((buttonStateNew & i) == 0) ? 0 : 1);
+					}
 				}
 				buttonState = buttonStateNew;
 			}
@@ -484,6 +498,7 @@ abstract class DifferentTouchInput
 		}
 		public void process(final MotionEvent event)
 		{
+			Log.i("SDL", "AutoDetectTouchInput: process");
 			if( ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP ||
 				(event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) )
 			{
@@ -514,19 +529,23 @@ abstract class DifferentTouchInput
 				Log.i("SDL", "AutoDetectTouchInput: hoverTouchDistance " + hoverTouchDistance + " threshold " + displayHeight / 2 + " hover " + hover + " fingerHover " + fingerHover);
 				if( hoverTouchDistance > displayHeight / 2 )
 				{
+					Log.i("SDL", "AutoDetectTouchInput: 1");
 					if( Globals.AppUsesMouse )
 						Toast.makeText(GameActivity.instance, "Detected buggy touch panel, enabling workarounds", Toast.LENGTH_SHORT).show();
 					touchInput = CrappyMtkTabletWithBrokenTouchDrivers.Holder.sInstance;
 				}
 				else
 				{
+					Log.i("SDL", "AutoDetectTouchInput: 2");
 					if( fingerHover )
 					{
+						Log.i("SDL", "AutoDetectTouchInput: 3");
 						if( Globals.AppUsesMouse )
 							Toast.makeText(GameActivity.instance, "Finger hover capability detected", Toast.LENGTH_SHORT).show();
 						// Switch away from relative mouse input
 						if( Globals.RelativeMouseMovement || Globals.LeftClickMethod != Mouse.LEFT_CLICK_NORMAL )
 						{
+							Log.i("SDL", "AutoDetectTouchInput: 4");
 							if( Globals.RelativeMouseMovement )
 								Globals.ShowScreenUnderFinger = Mouse.ZOOM_MAGNIFIER;
 							Globals.RelativeMouseMovement = false;
@@ -535,9 +554,15 @@ abstract class DifferentTouchInput
 						//Settings.applyMouseEmulationOptions();
 					}
 					if ( Globals.GenerateSubframeTouchEvents )
+					{
+						Log.i("SDL", "AutoDetectTouchInput: 5");
 						touchInput = IcsTouchInputWithHistory.Holder.sInstance;
+					}
 					else
+					{
+						Log.i("SDL", "AutoDetectTouchInput: 6");
 						touchInput = IcsTouchInput.Holder.sInstance;
+					}
 				}
 			}
 			super.process(event);
