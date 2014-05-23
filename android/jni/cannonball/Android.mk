@@ -1,5 +1,6 @@
-include $(CLEAR_VARS)
 LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
 
 LOCAL_SRC_PATH := ../../../src/main/
 LOCAL_MODULE := cannonball
@@ -13,6 +14,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/src \
 	$(LOCAL_PATH)/../../../src/main \
 	$(LOCAL_PATH)/../../../src/main/sdl \
+	$(LOCAL_PATH)/../../../external \
 	$(LOCAL_PATH)/../sdl-$(SDL_VERSION)/include \
 	/cygdrive/c/boost_1_52_0 \
 
@@ -64,8 +66,7 @@ LOCAL_SRC_FILES := \
 	$(LOCAL_SRC_PATH)trackloader.cpp \
 	$(LOCAL_SRC_PATH)utils.cpp \
 	$(LOCAL_SRC_PATH)video.cpp \
-	$(LOCAL_SRC_PATH)overlay.cpp \
-	$(LOCAL_SRC_PATH)../external/stb_image.c \
+	src/overlay_android.cpp \
 	src/main_android.c \
 
 LOCAL_CFLAGS := -DSDL_JAVA_PACKAGE_PATH=$(SDL_JAVA_PACKAGE_PATH) \

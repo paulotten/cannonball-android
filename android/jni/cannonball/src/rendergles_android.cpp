@@ -194,6 +194,8 @@ bool RenderGLES::start_frame()
 
 bool RenderGLES::finalize_frame()
 {
+	SDL_GL_SwapBuffers();
+
     if (SDL_MUSTLOCK(surface))
         SDL_UnlockSurface(surface);
 
@@ -260,6 +262,4 @@ void RenderGLES::draw_frame(uint16_t* pixels)
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glPopMatrix();
-
-    SDL_GL_SwapBuffers();
 }

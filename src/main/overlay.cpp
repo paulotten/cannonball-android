@@ -16,6 +16,7 @@
 #include "video.hpp"
 #include "engine\outrun.hpp"
 
+#include <SDL_opengl.h>
 #include <stb_image.c>
 
 Overlay overlay;

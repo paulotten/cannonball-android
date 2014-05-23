@@ -14,8 +14,6 @@
 #include "stdint.hpp"
 #include "quad.hpp"
 
-#include <SDL_opengl.h>
-
 class Overlay
 {
 public:
@@ -42,7 +40,7 @@ private:
 	const static int GEAR = 3;
 	const static int MENU = 4;
 
-	GLuint textureAtlas;
+	uint32_t textureAtlas;
 
 	quad_t panels[5];
 
