@@ -40,10 +40,11 @@ private:
 	const static int GEAR = 3;
 	const static int MENU = 4;
 
+	const static int PANEL_COUNT = MENU + 1;
+
 	uint32_t textureAtlas;
 
-	quad_t panels[5];
-
+	quad_t panels[PANEL_COUNT];
 };
 
 extern Overlay overlay;

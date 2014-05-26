@@ -12,6 +12,20 @@
 
 #include <SDL.h>
 
+typedef struct
+{
+	int min[2];
+	int max[2];
+} bounding_box_t;
+
+#define ASSIGN_BOUNDING_BOX(BOX, MIN_X, MIN_Y, MAX_X, MAX_Y) \
+	BOX.min[0] = MIN_X; BOX.min[1] = MIN_Y; \
+	BOX.max[0] = MAX_X; BOX.max[1] = MAX_Y;
+
+#define CHECK_BOUNDING_BOX(BOX, X, Y) \
+	(BOX.min[0] <= X && BOX.max[0] >= X && \
+	BOX.min[1] <= Y && BOX.max[1] >= Y)
+
 class Input
 {
 public:
@@ -54,6 +68,8 @@ public:
     // Latch last joystick button press for redefines
     int16_t joy_button;
 
+	static const uint8_t MOTION_COUNT = 8;
+
     // Analog Controls
     int a_wheel;
     int a_accel;
@@ -70,12 +86,10 @@ public:
     void handle_joy_axis(SDL_JoyAxisEvent*);
     void handle_joy_down(SDL_JoyButtonEvent*);
     void handle_joy_up(SDL_JoyButtonEvent*);
-	void handle_mouse_down(SDL_MouseButtonEvent*);
-	void handle_mouse_up(SDL_MouseButtonEvent*);
-	void handle_mouse_motion(SDL_MouseMotionEvent*);
+	void handle_motion(SDL_MouseMotionEvent*);
     void frame_done();
     bool is_pressed(presses p);
-    bool has_pressed(presses p);
+	bool has_pressed(presses p);
     bool is_analog_l();
     bool is_analog_r();
     bool is_analog_select();
@@ -88,6 +102,9 @@ private:
 
     // SDL Joystick / Keypad
     SDL_Joystick *stick;
+
+	// SDL Motions [Touch Count]
+	bounding_box_t panels_collsion[15];
 
     // Configurations for keyboard and joypad
     int* pad_config;
@@ -102,8 +119,7 @@ private:
     int delay;
 
 	void handle_key(const int, const bool);
-    void handle_joy(const uint8_t, const bool);
-	void handle_mouse(const int, const bool);
+	void handle_joy(const uint8_t, const bool);
 };
 
 extern Input input;

@@ -337,12 +337,18 @@ void Input::handle_joy(const uint8_t button, const bool is_pressed)
         keys[VIEWPOINT] = is_pressed;
 }
 
-void Input::handle_mouse_down(SDL_MouseButtonEvent* evt)
+void Input::handle_motion(SDL_MouseMotionEvent* evt)
 {
-	
+	//may need to reset keys onstart of tick
+	if (evt->state == SDL_PRESSED)
+	{
+		for (uint8_t i = 0; i < 15; ++i)
+		{
+			if (CHECK_BOUNDING_BOX(panels_collsion[i], evt->x, evt->y) == true)
+			{
+				keys[i] = true;
+			}
+		}
+	}
 }
 
-void Input::handle_mouse_up(SDL_MouseButtonEvent* evt)
-{
-
-}

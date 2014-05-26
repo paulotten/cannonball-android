@@ -97,17 +97,7 @@ static void process_events(void)
                 break;
 
 			case SDL_MOUSEMOTION:
-				printf("SDL_MOUSEMOTION");
-				break;
-
-			case SDL_MOUSEBUTTONDOWN:
-				printf("SDL_MOUSEBUTTONDOWN");
-				input.handle_mouse_down(&event.button);
-				break;
-
-			case SDL_MOUSEBUTTONUP:
-				printf("SDL_MOUSEBUTTONUP");
-				input.handle_mouse_up(&event.button);
+				input.handle_motion(&event.motion);
 				break;
 
             case SDL_QUIT:
@@ -193,7 +183,11 @@ static void tick()
 			break;
 		}
         case STATE_MENU:
-        {
+		{
+			if (config.overlay.enabled)
+			{
+				overlay.active = false;
+			}
             menu.tick();
             input.frame_done();
             #ifdef COMPILE_SOUND_CODE

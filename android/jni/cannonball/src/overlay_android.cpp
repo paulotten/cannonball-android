@@ -14,6 +14,7 @@ See license.txt for more details.
 
 #include "overlay.hpp"
 #include "video.hpp"
+#include "sdl\input.hpp"
 #include "engine\outrun.hpp"
 
 #include <stb_image.c>
@@ -60,8 +61,6 @@ void Overlay::init(void)
 	delete[] buffer;
 	AAsset_close(asset);
 
-	printf("overlay/main.png processed");
-
 	//assign texture
 	glGenTextures(1, &textureAtlas);
 
@@ -75,11 +74,7 @@ void Overlay::init(void)
 		GL_RGBA, GL_UNSIGNED_BYTE,    // Data format in pixel array
 		data);
 
-	printf("overlay/main.png processed 2");
-
 	stbi_image_free(data);
-
-	printf("overlay/main.png processed 3");
 
 	// --------------------------------------------------------------------------------------------
 	// Initalize Panel Quads
@@ -125,9 +120,16 @@ void Overlay::tick(void)
 
 	if (active)
 	{
+		SDL_MouseMotionEvent * motion_event;
+		for (uint8_t i = 0; i < Input::MOTION_COUNT; ++i)
+		{
+			motion_event = input.get_motion(i);
 
-
-		//check if buttons are pushed hopefully via SDL_MouseButtonEvent
+			if (motion_event->state == SDL_PRESSED)
+			{
+				printf("touch event processed");
+			}
+		}
 	}
 }
 

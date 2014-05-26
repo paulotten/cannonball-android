@@ -14,6 +14,7 @@
 
 #include "overlay.hpp"
 #include "video.hpp"
+#include "sdl\input.hpp"
 #include "engine\outrun.hpp"
 
 #include <SDL_opengl.h>
@@ -100,6 +101,17 @@ void Overlay::init(void)
 	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
 	ASSIGN_VERTEX(panels[MENU].vertices[3], 1, 0, 1, 0)
 
+	// --------------------------------------------------------------------------------------------
+	// Initalize Panel Collision
+	// --------------------------------------------------------------------------------------------
+
+	ASSIGN_BOUNDING_BOX(panels_collsion[DPAD], 0, 0, 0, 0)	//LEFT
+	ASSIGN_BOUNDING_BOX(panels_collsion[DPAD], 0, 0, 0, 0)	//RIGHT
+	ASSIGN_BOUNDING_BOX(panels_collsion[ACCEL], 0, 0, 0, 0)
+	ASSIGN_BOUNDING_BOX(panels_collsion[BRAKE], 0, 0, 0, 0)
+	ASSIGN_BOUNDING_BOX(panels_collsion[GEAR], 0, 0, 0, 0)
+	ASSIGN_BOUNDING_BOX(panels_collsion[MENU], 0, 0, 0, 0)
+
 	active = true;
 }
 
@@ -112,9 +124,27 @@ void Overlay::tick(void)
 
 	if (active)
 	{
+		int pos[2];
+		SDL_MouseMotionEvent * motion_event;
+		for (uint8_t i = 0; i < Input::MOTION_COUNT; ++i)
+		{
+			motion_event = input.get_motion(i);
 
+			if (motion_event->state == SDL_PRESSED)
+			{
+				printf("touch event processed %i, %i, %i", 
+					motion_event->which, 
+					motion_event->x, motion_event->y);
 
-		//check if buttons are pushed hopefully via SDL_MouseButtonEvent
+				pos[0] = motion_event->x;
+				pos[1] = motion_event->y;
+
+				if (box_check(panels_collsion[ACCEL], pos) == true)
+				{
+					//input.handle_key_down()
+				}
+			}
+		}
 	}
 }
 
@@ -135,7 +165,7 @@ void Overlay::draw(void)
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textureAtlas);
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < PANEL_COUNT; ++i)
 	{
 		glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);
