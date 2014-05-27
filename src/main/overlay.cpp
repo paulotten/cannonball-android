@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "setup.hpp"
 #include "overlay.hpp"
 #include "video.hpp"
 #include "sdl\input.hpp"
@@ -74,46 +75,46 @@ void Overlay::init(void)
 
 	int scn_width = video.get_scn_width();
 	int scn_height = video.get_scn_height();
-	
-	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[0], 32, scn_height - 64, 0, 0.5)
-	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[1], 32, scn_height - 128 - 64, 0, 0)
-	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[2], 128 + 32, scn_height - 64, 0.5, 0.5)
-	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[3], 128 + 32, scn_height - 128 - 64, 0.5, 0)
 
-	ASSIGN_VERTEX(panels[ACCEL].vertices[0], scn_width - 128 - 32, scn_height - 64, 0, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[1], scn_width - 128 - 32, scn_height - 128 - 64, 0, 0.5)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[2], scn_width - 32, scn_height - 64, 0.5, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[3], scn_width - 32, scn_height - 128 - 64, 0.5, 0.5)
-
-	ASSIGN_VERTEX(panels[BRAKE].vertices[0], scn_width - 128 - 96 - 32, scn_height - 64, 0.6, 1)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[1], scn_width - 128 - 96 - 32, scn_height - 96 - 64, 0.6, 0.6)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[2], scn_width - 128 - 32, scn_height - 64, 1, 1)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[3], scn_width - 128 - 32, scn_height - 96 - 64, 1, 0.6)
-
-	ASSIGN_VERTEX(panels[GEAR].vertices[0], scn_width - 96 - 32, scn_height - 128 - 64, 0.6, 0.6)
-	ASSIGN_VERTEX(panels[GEAR].vertices[1], scn_width - 96 - 32, scn_height - 128 - 96 - 64, 0.6, 0.2)
-	ASSIGN_VERTEX(panels[GEAR].vertices[2], scn_width - 32, scn_height - 128 - 64, 1, 0.6)
-	ASSIGN_VERTEX(panels[GEAR].vertices[3], scn_width - 32, scn_height - 128 - 96 - 64, 1, 0.2)
-
-	ASSIGN_VERTEX(panels[MENU].vertices[0], 0, 1, 0, 1)
-	ASSIGN_VERTEX(panels[MENU].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
-	ASSIGN_VERTEX(panels[MENU].vertices[3], 1, 0, 1, 0)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_LEFT], config.overlay.panel_pos[DPAD_LEFT], config.overlay.panel_texcoord[DPAD_LEFT], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_RIGHT], config.overlay.panel_pos[DPAD_RIGHT], config.overlay.panel_texcoord[DPAD_RIGHT], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_UP], config.overlay.panel_pos[DPAD_UP], config.overlay.panel_texcoord[DPAD_UP], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_DOWN], config.overlay.panel_pos[DPAD_DOWN], config.overlay.panel_texcoord[DPAD_DOWN], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[ACCEL], config.overlay.panel_pos[ACCEL], config.overlay.panel_texcoord[ACCEL], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[BRAKE], config.overlay.panel_pos[BRAKE], config.overlay.panel_texcoord[BRAKE], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[GEAR], config.overlay.panel_pos[GEAR], config.overlay.panel_texcoord[GEAR], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[COIN], config.overlay.panel_pos[COIN], config.overlay.panel_texcoord[COIN], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[START], config.overlay.panel_pos[START], config.overlay.panel_texcoord[START], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[MENU], config.overlay.panel_pos[MENU], config.overlay.panel_texcoord[MENU], x)
 
 	active_panels = 0;
-}
 
-void Overlay::tick(void)
-{
+	active_panels |= 1 << DPAD_LEFT;
+	active_panels |= 1 << DPAD_RIGHT;
+	active_panels |= 1 << DPAD_UP;
+	active_panels |= 1 << DPAD_DOWN;
+	active_panels |= 1 << ACCEL;
+	active_panels |= 1 << BRAKE;
+	active_panels |= 1 << GEAR;
+	active_panels |= 1 << COIN;
+
+	active_panels |= 1 << START;
+
+	active_panels |= 1 << MENU;
 }
 
 void Overlay::draw(void)
 {
+	if (active_panels == 0)
+	{
+		return;
+	}
+
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
-	glOrtho(0, video.get_scn_width(), video.get_scn_height(), 0, 0, 1);         // left, right, bottom, top, near, far
+	glOrtho(0, video.get_scn_width(), video.get_scn_height(), 0, 0, 1);    
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);

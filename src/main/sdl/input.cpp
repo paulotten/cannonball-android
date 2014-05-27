@@ -22,7 +22,7 @@ Input::~Input(void)
 {
 }
 
-void Input::init(int pad_id, int* key_config, int* pad_config, int analog, int* axis, int* analog_settings)
+void Input::init(int pad_id, int* key_config, int* pad_config, int analog, int* axis, int* analog_settings, const bounding_box_t* collision)
 {
     this->key_config  = key_config;
     this->pad_config  = pad_config;
@@ -31,6 +31,8 @@ void Input::init(int pad_id, int* key_config, int* pad_config, int analog, int* 
     this->wheel_zone  = analog_settings[0];
     this->wheel_dead  = analog_settings[1];
     this->pedals_dead = analog_settings[2];
+
+	memcpy(&(this->panels_collsion), collision, sizeof(bounding_box_t) * 15);
 
     gamepad = SDL_NumJoysticks() > pad_id;
 
@@ -352,7 +354,7 @@ void Input::handle_motion(SDL_MouseMotionEvent* evt)
 	}
 	else
 	{
-		
+
 	}
 }
 

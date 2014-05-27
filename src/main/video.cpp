@@ -165,7 +165,7 @@ void Video::draw_frame()
 
 #if defined WITH_OPENGL || \
 	defined WITH_GLES
-	if (overlay.active)
+	if (config.overlay.enabled)
 	{
 		overlay.draw();
 	}

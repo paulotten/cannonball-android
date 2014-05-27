@@ -41,8 +41,6 @@ public:
 
 	void init();
 
-	void tick();
-
 	void draw();
 
 private:

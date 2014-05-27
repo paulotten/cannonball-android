@@ -255,8 +255,6 @@ void Menu::init()
 
     outrun.game_state = GS_INIT;
 
-	printf("Menu::init 0");
-
     set_menu(&menu_main);
     refresh_menu();
 
@@ -266,8 +264,6 @@ void Menu::init()
     osoundint.init();
     cannonball::audio.clear_wav();
 #endif
-
-	printf("Menu::init 1");
 
     frame = 0;
     message_counter = 0;

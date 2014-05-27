@@ -14,6 +14,8 @@
 #include <string>
 #include "stdint.hpp"
 
+#include "bbox.hpp"
+
 struct custom_music_t
 {
     int enabled;
@@ -37,6 +39,9 @@ struct menu_settings_t
 struct overlay_settings_t
 {
 	int enabled;
+
+	bounding_box_t panel_pos[10];
+	bounding_box_t panel_texcoord[10];
 };
 
 struct video_settings_t
@@ -81,6 +86,8 @@ struct controls_settings_t
     int axis[3];       // Analog Axis
     int asettings[3];  // Analog Settings
 
+	bounding_box_t collision_panels[15];
+
     int haptic;        // Force Feedback Enabled
     int max_force;
     int min_force;
@@ -106,6 +113,7 @@ struct engine_settings_t
 class Config
 {
 public:
+
     menu_settings_t     menu;
 	overlay_settings_t	overlay;
     video_settings_t    video;

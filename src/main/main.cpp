@@ -74,9 +74,14 @@ static void process_events(void)
         {
             case SDL_KEYDOWN:
                 // Handle key presses.
-                if (event.key.keysym.sym == SDLK_ESCAPE)
-                    state = STATE_QUIT;
-                else
+				if (event.key.keysym.sym == SDLK_ESCAPE)
+					state = STATE_QUIT;
+				else if (event.key.keysym.sym == SDLK_r)
+				{
+					//reload config data
+					//config.load(FILENAME_CONFIG);
+				}
+				else
                     input.handle_key_down(&event.key.keysym);
                 break;
 
@@ -156,11 +161,6 @@ static void tick()
 			{
 				input.frame_done(); // Denote keys read
 			}
-
-			if (config.overlay.enabled)
-			{
-				overlay.tick();
-			}
 			break;
 		}
 		case STATE_INIT_GAME:
@@ -171,11 +171,6 @@ static void tick()
 			}
 			else
 			{
-				if (config.overlay.enabled)
-				{
-					overlay.init();
-				}
-
 				pause_engine = false;
 				outrun.init();
 				state = STATE_GAME;
@@ -184,10 +179,6 @@ static void tick()
 		}
         case STATE_MENU:
 		{
-			if (config.overlay.enabled)
-			{
-				overlay.active = false;
-			}
             menu.tick();
             input.frame_done();
             #ifdef COMPILE_SOUND_CODE
@@ -195,7 +186,7 @@ static void tick()
 				osoundint.tick();
 				// Tick SDL Audio
 				audio.tick();
-            #endif
+			#endif
 			break;
         }
 		case STATE_INIT_MENU:
@@ -298,7 +289,7 @@ int main(int argc, char* argv[])
             roms.load_pcm_rom(true);
 
         //Set the window caption 
-        SDL_WM_SetCaption( "Cannonball", NULL ); 
+        SDL_WM_SetCaption("Cannonball", NULL); 
 
         // Initialize SDL Video
         if (!video.init(&roms, &config.video))
@@ -312,13 +303,18 @@ int main(int argc, char* argv[])
         // Initalize controls
         input.init(config.controls.pad_id,
                    config.controls.keyconfig, config.controls.padconfig, 
-                   config.controls.analog,    config.controls.axis, config.controls.asettings);
+                   config.controls.analog,    config.controls.axis, 
+				   config.controls.asettings, config.controls.collision_panels);
 
         if (config.controls.haptic) 
             config.controls.haptic = forcefeedback::init(config.controls.max_force, config.controls.min_force, config.controls.force_duration);
 
+		if (config.overlay.enabled)
+			overlay.init();
+
         // Populate menus
         menu.populate();
+
         main_loop();  // Loop until we quit the app
     }
     else
