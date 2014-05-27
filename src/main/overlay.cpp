@@ -35,15 +35,14 @@ void Overlay::init(void)
 	int x, y, comp, length;
 	stbi_uc* data;
 
-	std::string path = "res/overlay/main.png"; //put into const
-	std::ifstream src(path.c_str(), std::ios::in | std::ios::binary);
+	std::ifstream src(FILENAME_OVERLAY, std::ios::in | std::ios::binary);
 	if (!src)
 	{
 		std::cout << "cannot open rom: " << "" << std::endl;
 		//return 1; // fail
 	}
 
-	length = filesize(path.c_str());
+	length = filesize(FILENAME_OVERLAY);
 
 	// Read file
 	char* buffer = new char[length];
@@ -55,9 +54,9 @@ void Overlay::init(void)
 	src.close();
 
 	//assign texture
-	glGenTextures(1, &textureAtlas); 
+	glGenTextures(1, &texture_atlas); 
 	
-	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glBindTexture(GL_TEXTURE_2D, texture_atlas);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -76,10 +75,10 @@ void Overlay::init(void)
 	int scn_width = video.get_scn_width();
 	int scn_height = video.get_scn_height();
 	
-	ASSIGN_VERTEX(panels[DPAD].vertices[0], 32, scn_height - 64, 0, 0.5)
-	ASSIGN_VERTEX(panels[DPAD].vertices[1], 32, scn_height - 128 - 64, 0, 0)
-	ASSIGN_VERTEX(panels[DPAD].vertices[2], 128 + 32, scn_height - 64, 0.5, 0.5)
-	ASSIGN_VERTEX(panels[DPAD].vertices[3], 128 + 32, scn_height - 128 - 64, 0.5, 0)
+	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[0], 32, scn_height - 64, 0, 0.5)
+	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[1], 32, scn_height - 128 - 64, 0, 0)
+	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[2], 128 + 32, scn_height - 64, 0.5, 0.5)
+	ASSIGN_VERTEX(panels[DPAD_RIGHT].vertices[3], 128 + 32, scn_height - 128 - 64, 0.5, 0)
 
 	ASSIGN_VERTEX(panels[ACCEL].vertices[0], scn_width - 128 - 32, scn_height - 64, 0, 1)
 	ASSIGN_VERTEX(panels[ACCEL].vertices[1], scn_width - 128 - 32, scn_height - 128 - 64, 0, 0.5)
@@ -101,51 +100,11 @@ void Overlay::init(void)
 	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
 	ASSIGN_VERTEX(panels[MENU].vertices[3], 1, 0, 1, 0)
 
-	// --------------------------------------------------------------------------------------------
-	// Initalize Panel Collision
-	// --------------------------------------------------------------------------------------------
-
-	ASSIGN_BOUNDING_BOX(panels_collsion[DPAD], 0, 0, 0, 0)	//LEFT
-	ASSIGN_BOUNDING_BOX(panels_collsion[DPAD], 0, 0, 0, 0)	//RIGHT
-	ASSIGN_BOUNDING_BOX(panels_collsion[ACCEL], 0, 0, 0, 0)
-	ASSIGN_BOUNDING_BOX(panels_collsion[BRAKE], 0, 0, 0, 0)
-	ASSIGN_BOUNDING_BOX(panels_collsion[GEAR], 0, 0, 0, 0)
-	ASSIGN_BOUNDING_BOX(panels_collsion[MENU], 0, 0, 0, 0)
-
-	active = true;
+	active_panels = 0;
 }
 
 void Overlay::tick(void)
 {
-	active = outrun.game_state == GS_START1 
-		|| outrun.game_state == GS_START2
-		|| outrun.game_state == GS_START3
-		|| outrun.game_state == GS_INGAME;
-
-	if (active)
-	{
-		int pos[2];
-		SDL_MouseMotionEvent * motion_event;
-		for (uint8_t i = 0; i < Input::MOTION_COUNT; ++i)
-		{
-			motion_event = input.get_motion(i);
-
-			if (motion_event->state == SDL_PRESSED)
-			{
-				printf("touch event processed %i, %i, %i", 
-					motion_event->which, 
-					motion_event->x, motion_event->y);
-
-				pos[0] = motion_event->x;
-				pos[1] = motion_event->y;
-
-				if (box_check(panels_collsion[ACCEL], pos) == true)
-				{
-					//input.handle_key_down()
-				}
-			}
-		}
-	}
 }
 
 void Overlay::draw(void)
@@ -163,13 +122,16 @@ void Overlay::draw(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glBindTexture(GL_TEXTURE_2D, texture_atlas);
 
-	for (int i = 0; i < PANEL_COUNT; ++i)
+	for (uint8_t i = 0; i < PANEL_COUNT; ++i)
 	{
-		glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		if (((active_panels >> i) & 1) > 0)
+		{
+			glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
 	}
 
 	glDisable(GL_TEXTURE_2D);

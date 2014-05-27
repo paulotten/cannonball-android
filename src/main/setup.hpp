@@ -3,6 +3,8 @@
 
 #include "SDL_video.h"
 
+const static char* FILENAME_OVERLAY = "res/overlay/main.png";
+
 #ifdef __ANDROID__
 
 const static char* FILENAME_CONFIG = "/sdcard/config.xml";

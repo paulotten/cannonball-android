@@ -18,6 +18,24 @@ class Overlay
 {
 public:
 
+    enum panels
+    {
+		DPAD_LEFT = 0,
+		DPAD_RIGHT = 1,
+		DPAD_UP = 2,
+		DPAD_DOWN = 3,
+		ACCEL = 4,
+		BRAKE = 5,
+		GEAR = 6,
+		COIN = 7,
+		
+		START = 8,
+		
+		MENU = 9,
+	};
+
+	const static int PANEL_COUNT = 10;
+	
 	Overlay();
 	~Overlay();
 
@@ -27,24 +45,15 @@ public:
 
 	void draw();
 
-	int active;
-
 private:
 
 	int filesize(const char*);
 
-	// Panel IDs
-	const static int DPAD = 0;
-	const static int ACCEL = 1;
-	const static int BRAKE = 2;
-	const static int GEAR = 3;
-	const static int MENU = 4;
+	uint32_t texture_atlas;
 
-	const static int PANEL_COUNT = MENU + 1;
-
-	uint32_t textureAtlas;
-
+	uint16_t active_panels;
 	quad_t panels[PANEL_COUNT];
+	
 };
 
 extern Overlay overlay;

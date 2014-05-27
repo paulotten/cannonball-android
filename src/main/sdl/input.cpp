@@ -350,5 +350,9 @@ void Input::handle_motion(SDL_MouseMotionEvent* evt)
 			}
 		}
 	}
+	else
+	{
+		
+	}
 }
 
