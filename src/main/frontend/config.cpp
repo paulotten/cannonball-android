@@ -22,8 +22,6 @@
 #include "engine/ohiscore.hpp"
 #include "engine/audio/osoundint.hpp"
 
-Config config;
-
 const char * overlay_element_list[] = 
 {
 	"dpad_left", "dpad_right",
@@ -32,6 +30,19 @@ const char * overlay_element_list[] =
 	"gear", "coin",
 	"start", "menu",
 };
+const char * control_element_list[] =
+{
+	"left", "right",
+	"up", "down",
+	"accel", "brake",
+	"gear1", "gear2",
+	"start", "coin",
+	"viewpoint", "pause",
+	"step", "timer",
+	"menu", 
+};
+
+Config config;
 
 Config::Config(void)
 {
@@ -88,18 +99,18 @@ void Config::load(const std::string &filename)
 		overlay_element = "overlay.panel_pos.";
 		overlay_element += overlay_element_list[i];
 		
-		overlay.panel_pos[i].min[0] = pt_config.get((overlay_element + ".min.x").c_str(), 0);
-		overlay.panel_pos[i].min[1] = pt_config.get((overlay_element + ".min.y").c_str(), 0);
-		overlay.panel_pos[i].max[0] = pt_config.get((overlay_element + ".max.x").c_str(), 0);
-		overlay.panel_pos[i].max[1] = pt_config.get((overlay_element + ".max.y").c_str(), 0);
+		overlay.panel_pos[i].min[0] = pt_config.get(overlay_element + ".min.x", 0);
+		overlay.panel_pos[i].min[1] = pt_config.get(overlay_element + ".min.y", 0);
+		overlay.panel_pos[i].max[0] = pt_config.get(overlay_element + ".max.x", 0);
+		overlay.panel_pos[i].max[1] = pt_config.get(overlay_element + ".max.y", 0);
 
 		overlay_element = "overlay.panel_tex.";
 		overlay_element += overlay_element_list[i];
 
-		overlay.panel_texcoord[i].min[0] = pt_config.get((overlay_element + ".min.x").c_str(), 0);
-		overlay.panel_texcoord[i].min[1] = pt_config.get((overlay_element + ".min.y").c_str(), 0);
-		overlay.panel_texcoord[i].max[0] = pt_config.get((overlay_element + ".max.x").c_str(), 0);
-		overlay.panel_texcoord[i].max[1] = pt_config.get((overlay_element + ".max.y").c_str(), 0);
+		overlay.panel_texcoord[i].min[0] = pt_config.get(overlay_element + ".min.x", 0);
+		overlay.panel_texcoord[i].min[1] = pt_config.get(overlay_element + ".min.y", 0);
+		overlay.panel_texcoord[i].max[0] = pt_config.get(overlay_element + ".max.x", 0);
+		overlay.panel_texcoord[i].max[1] = pt_config.get(overlay_element + ".max.y", 0);
 	}
 
     // ------------------------------------------------------------------------
@@ -171,30 +182,17 @@ void Config::load(const std::string &filename)
     controls.asettings[1]  = pt_config.get("controls.analog.wheel.dead", 0);
     controls.asettings[2]  = pt_config.get("controls.analog.pedals.dead", 0);
 
-	controls.collision_panels[0].min[0] = pt_config.get("controls.collision.left.min.x", 0);
-	controls.collision_panels[0].min[1] = pt_config.get("controls.collision.left.min.y", 0);
-	controls.collision_panels[0].max[0] = pt_config.get("controls.collision.left.max.x", 0);
-	controls.collision_panels[0].max[1] = pt_config.get("controls.collision.left.max.y", 0);
+	std::string control_element;
+	for (uint8_t i = 0; i < 15; ++i)
+	{
+		control_element = "controls.collision.";
+		control_element += control_element_list[i];
 
-	controls.collision_panels[1].min[0] = pt_config.get("controls.collision.right.min.x", 0);
-	controls.collision_panels[1].min[1] = pt_config.get("controls.collision.right.min.y", 0);
-	controls.collision_panels[1].max[0] = pt_config.get("controls.collision.right.max.x", 0);
-	controls.collision_panels[1].max[1] = pt_config.get("controls.collision.right.max.y", 0);
-
-	controls.collision_panels[2].min[0] = pt_config.get("controls.collision.up.min.x", 0);
-	controls.collision_panels[2].min[1] = pt_config.get("controls.collision.up.min.y", 0);
-	controls.collision_panels[2].max[0] = pt_config.get("controls.collision.up.max.x", 0);
-	controls.collision_panels[2].max[1] = pt_config.get("controls.collision.up.max.y", 0);
-
-	controls.collision_panels[3].min[0] = pt_config.get("controls.collision.down.min.x", 0);
-	controls.collision_panels[3].min[1] = pt_config.get("controls.collision.down.min.y", 0);
-	controls.collision_panels[3].max[0] = pt_config.get("controls.collision.down.max.x", 0);
-	controls.collision_panels[3].max[1] = pt_config.get("controls.collision.down.max.y", 0);
-
-	controls.collision_panels[4].min[0] = pt_config.get("controls.collision.accel.min.x", 0);
-	controls.collision_panels[4].min[1] = pt_config.get("controls.collision.accel.min.y", 0);
-	controls.collision_panels[4].max[0] = pt_config.get("controls.collision.accel.max.x", 0);
-	controls.collision_panels[4].max[1] = pt_config.get("controls.collision.accel.max.y", 0);
+		controls.collision_panels[i].min[0] = pt_config.get(control_element + ".min.x", 0);
+		controls.collision_panels[i].min[1] = pt_config.get(control_element + ".min.y", 0);
+		controls.collision_panels[i].max[0] = pt_config.get(control_element + ".max.x", 0);
+		controls.collision_panels[i].max[1] = pt_config.get(control_element + ".max.y", 0);;
+	}
 
     controls.haptic        = pt_config.get("controls.analog.haptic.<xmlattr>.enabled", 0);
     controls.max_force     = pt_config.get("controls.analog.haptic.max_force", 9000);

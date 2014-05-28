@@ -35,6 +35,9 @@ public:
 	};
 
 	const static int PANEL_COUNT = 10;
+
+	const static int FRONTEND_MASK = (1 << DPAD_UP) | (1 << DPAD_DOWN) | (1 << ACCEL);
+	const static int INGAME_MASK = FRONTEND_MASK | (1 << DPAD_LEFT) | (1 << DPAD_RIGHT);
 	
 	Overlay();
 	~Overlay();
