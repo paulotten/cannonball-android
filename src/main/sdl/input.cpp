@@ -32,7 +32,8 @@ void Input::init(int pad_id, int* key_config, int* pad_config, int analog, int* 
     this->wheel_dead  = analog_settings[1];
     this->pedals_dead = analog_settings[2];
 
-	memcpy(&(this->panels_collsion), collision, sizeof(bounding_box_t) * 15);
+	memcpy(&(this->panels_collsion), collision, sizeof(this->panels_collsion));
+	memset(&(this->touch_list), 0, sizeof(touch_list));
 
     gamepad = SDL_NumJoysticks() > pad_id;
 
@@ -66,7 +67,61 @@ bool Input::is_pressed(presses p)
 // Denote that a frame has been done by copying key presses into previous array
 void Input::frame_done()
 {
-    memcpy(&keys_old, &keys, sizeof(keys));
+	memcpy(&keys_old, &keys, sizeof(keys));
+
+	for (uint8_t i = 0; i < TOUCH_COUNT; ++i)
+	{
+		//may need to reset keys onstart of tick
+		if (touch_list[i].processed == false)
+		{
+			if (touch_list[i].state == SDL_PRESSED)
+			{
+				if (touch_list[i].key_pressed == false)
+				{
+					if (touch_list[i].type == SDL_MOUSEBUTTONDOWN)
+					{
+						for (uint8_t j = 0; j < 15; ++j)
+						{
+							if (CHECK_BOUNDING_BOX(panels_collsion[j], touch_list[i].x, touch_list[i].y))
+							{
+								touch_list[i].key = j;
+								touch_list[i].key_pressed = true;
+
+								keys[j] = true;
+
+								printf("Pressed %i [%i,%i]\n",
+									j, touch_list[i].x, touch_list[i].y);
+							}
+						}
+					}
+				}
+				else
+				{
+					if (!CHECK_BOUNDING_BOX(panels_collsion[touch_list[i].key], touch_list[i].x, touch_list[i].y))
+					{
+						keys[touch_list[i].key] = false;
+						touch_list[i].key_pressed = false;
+
+						printf("Released %i [%i,%i]\n", 
+							touch_list[i].key, touch_list[i].x, touch_list[i].y);
+					}
+				}
+			}
+			else 
+			{
+				if (touch_list[i].key_pressed == true)
+				{
+					keys[touch_list[i].key] = false;
+					touch_list[i].key_pressed = false;
+
+					printf("Released %i [%i,%i]\n",
+						touch_list[i].key, touch_list[i].x, touch_list[i].y);
+				}
+			}
+
+			touch_list[i].processed = true;
+		}
+	}
 }
 
 void Input::handle_key_down(SDL_keysym* keysym)
@@ -341,20 +396,27 @@ void Input::handle_joy(const uint8_t button, const bool is_pressed)
 
 void Input::handle_motion(SDL_MouseMotionEvent* evt)
 {
-	//may need to reset keys onstart of tick
-	if (evt->state == SDL_PRESSED)
+	if (evt->which > -1 &&
+		evt->which < TOUCH_COUNT)
 	{
-		for (uint8_t i = 0; i < 15; ++i)
-		{
-			if (CHECK_BOUNDING_BOX(panels_collsion[i], evt->x, evt->y) == true)
-			{
-				keys[i] = true;
-			}
-		}
-	}
-	else
-	{
+		memcpy(&touch_list[evt->which], evt, sizeof(SDL_MouseMotionEvent));
 
+		touch_list[evt->which].processed = false;
+	}
+}
+
+void Input::handle_mouse(SDL_MouseButtonEvent* evt)
+{
+	if (evt->which > -1 &&
+		evt->which < TOUCH_COUNT)
+	{
+		touch_list[evt->which].type = evt->type;
+		touch_list[evt->which].which = evt->which;
+		touch_list[evt->which].state = evt->state;
+		touch_list[evt->which].x = evt->x;
+		touch_list[evt->which].y = evt->y;
+
+		touch_list[evt->which].processed = false;
 	}
 }
 

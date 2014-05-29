@@ -105,6 +105,11 @@ static void process_events(void)
 				input.handle_motion(&event.motion);
 				break;
 
+			case SDL_MOUSEBUTTONUP:
+			case SDL_MOUSEBUTTONDOWN:
+				input.handle_mouse(&event.button);
+				break;
+
             case SDL_QUIT:
                 // Handle quit requests (like Ctrl-c).
                 state = STATE_QUIT;

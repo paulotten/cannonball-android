@@ -14,6 +14,14 @@
 
 #include "bbox.hpp"
 
+typedef struct touch_s 
+	: SDL_MouseMotionEvent
+{
+	uint8_t key			: 8;
+	uint8_t key_pressed : 1;
+	uint8_t processed	: 1;
+} touch_t;
+
 class Input
 {
 public:
@@ -54,8 +62,6 @@ public:
     // Latch last joystick button press for redefines
     int16_t joy_button;
 
-	static const uint8_t MOTION_COUNT = 8;
-
     // Analog Controls
     int a_wheel;
     int a_accel;
@@ -73,6 +79,7 @@ public:
     void handle_joy_down(SDL_JoyButtonEvent*);
     void handle_joy_up(SDL_JoyButtonEvent*);
 	void handle_motion(SDL_MouseMotionEvent*);
+	void handle_mouse(SDL_MouseButtonEvent*);
     void frame_done();
     bool is_pressed(presses p);
 	bool has_pressed(presses p);
@@ -81,16 +88,20 @@ public:
     bool is_analog_select();
 
 private:
-    static const int CENTRE = 0x80;
+	const static int CENTRE = 0x80;
 
     // Digital Dead Zone
-    static const int DIGITAL_DEAD = 3200;
+	const static int DIGITAL_DEAD = 3200;
 
     // SDL Joystick / Keypad
     SDL_Joystick *stick;
 
 	// SDL Motions [Touch Count]
 	bounding_box_t panels_collsion[15];
+
+	// Touches
+	const static uint8_t TOUCH_COUNT = 8;
+	touch_t touch_list[TOUCH_COUNT];
 
     // Configurations for keyboard and joypad
     int* pad_config;
@@ -101,7 +112,7 @@ private:
     int wheel_dead;
     int pedals_dead;
 
-    static const int DELAY_RESET = 60;
+	const static int DELAY_RESET = 60;
     int delay;
 
 	void handle_key(const int, const bool);
