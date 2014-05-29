@@ -82,6 +82,9 @@ abstract class DifferentTouchInput
 			if( m.getName().equals("getPointerId") )
 				multiTouchAvailable2 = true;
 		}
+		
+		return MultiTouchInput.Holder.sInstance;
+		/*
 		try {
 			Log.i("SDL", "Device: " + android.os.Build.DEVICE);
 			Log.i("SDL", "Device name: " + android.os.Build.DISPLAY);
@@ -119,7 +122,7 @@ abstract class DifferentTouchInput
 			} catch( Exception ee ) {
 				return SingleTouchInput.Holder.sInstance;
 			}
-		}
+		}*/
 	}
 	private static boolean DetectCrappyDragonRiseDatexGamepad()
 	{
@@ -188,7 +191,8 @@ abstract class DifferentTouchInput
 		public void process(final MotionEvent event)
 		{
 			int action = -1;
-
+			
+			Log.i("SDL", "MultiTouchInput: process");
 			//Log.i("SDL", "Got motion event, type " + (int)(event.getAction()) + " X " + (int)event.getX() + " Y " + (int)event.getY());
 			if( (event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP ||
 				(event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_CANCEL )
@@ -199,6 +203,7 @@ abstract class DifferentTouchInput
 					if( touchEvents[i].down )
 					{
 						touchEvents[i].down = false;
+						Log.i("SDL", "MultiTouchInput: DemoGLSurfaceView.nativeMotionEvent");
 						DemoGLSurfaceView.nativeMotionEvent( touchEvents[i].x, touchEvents[i].y, action, i, touchEvents[i].pressure, touchEvents[i].size );
 					}
 				}
@@ -216,6 +221,7 @@ abstract class DifferentTouchInput
 					touchEvents[id].y = (int)event.getY(i);
 					touchEvents[id].pressure = (int)(event.getPressure(i) * 1024.0f);
 					touchEvents[id].size = (int)(event.getSize(i) * 1024.0f);
+					Log.i("SDL", "MultiTouchInput: DemoGLSurfaceView.nativeMotionEvent");
 					DemoGLSurfaceView.nativeMotionEvent( touchEvents[id].x, touchEvents[id].y, action, id, touchEvents[id].pressure, touchEvents[id].size );
 				}
 			}
@@ -250,6 +256,7 @@ abstract class DifferentTouchInput
 						{
 							action = Mouse.SDL_FINGER_UP;
 							touchEvents[id].down = false;
+							Log.i("SDL", "MultiTouchInput: DemoGLSurfaceView.nativeMotionEvent");
 							DemoGLSurfaceView.nativeMotionEvent( touchEvents[id].x, touchEvents[id].y, action, id, touchEvents[id].pressure, touchEvents[id].size );
 						}
 					}
@@ -273,6 +280,7 @@ abstract class DifferentTouchInput
 						touchEvents[id].y = (int)event.getY(ii);
 						touchEvents[id].pressure = (int)(event.getPressure(ii) * 1024.0f);
 						touchEvents[id].size = (int)(event.getSize(ii) * 1024.0f);
+						Log.i("SDL", "MultiTouchInput: DemoGLSurfaceView.nativeMotionEvent");
 						DemoGLSurfaceView.nativeMotionEvent( touchEvents[id].x, touchEvents[id].y, action, id, touchEvents[id].pressure, touchEvents[id].size );
 					}
 				}
@@ -292,6 +300,7 @@ abstract class DifferentTouchInput
 		}
 		public void process(final MotionEvent event)
 		{
+			Log.i("SDL", "GingerbreadTouchInput: process");
 			int hwMouseEvent = ((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS) ? Mouse.MOUSE_HW_INPUT_STYLUS :
 								((event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) ? Mouse.MOUSE_HW_INPUT_MOUSE :
 								Mouse.MOUSE_HW_INPUT_FINGER;
@@ -338,6 +347,7 @@ abstract class DifferentTouchInput
 		private int buttonState = 0;
 		public void process(final MotionEvent event)
 		{
+			Log.i("SDL", "IcsTouchInput: process");
 			Log.i("SDL", "Got motion event, type " + (int)(event.getAction()) + " X " + (int)event.getX() + " Y " + (int)event.getY() + " buttons " + buttonState + " source " + event.getSource());
 			int buttonStateNew = event.getButtonState();
 			if( buttonStateNew != buttonState )

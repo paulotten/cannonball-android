@@ -55,7 +55,7 @@ static inline SDL_scancode TranslateKey(int scancode)
 }
 
 static int isTrackballUsed = 0;
-int SDL_ANDROID_isMouseUsed = 0;
+int SDL_ANDROID_isMouseUsed = 1;	//	previously set to 0 and activated via java
 
 #define NORMALIZE_FLOAT_32767(X) (fminf(32767.0f, fmaxf(-32767.0f, (X) * 32767.0f)))
 

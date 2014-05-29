@@ -12,15 +12,15 @@ See license.txt for more details.
 #include <iostream>
 #include <fstream>
 
+#include "setup.hpp"
 #include "overlay.hpp"
 #include "video.hpp"
 #include "sdl\input.hpp"
 #include "engine\outrun.hpp"
 
-#include <stb_image.c>
-
 #include "android_debug.h"
 #include <GLES/gl.h>
+#include <stb_image.c>
 
 #include <unistd.h>
 #include <jni.h>
@@ -62,9 +62,9 @@ void Overlay::init(void)
 	AAsset_close(asset);
 
 	//assign texture
-	glGenTextures(1, &textureAtlas);
+	glGenTextures(1, &texture_atlas);
 
-	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glBindTexture(GL_TEXTURE_2D, texture_atlas);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -83,59 +83,26 @@ void Overlay::init(void)
 	int scn_width = video.get_scn_width();
 	int scn_height = video.get_scn_height();
 
-	ASSIGN_VERTEX(panels[DPAD].vertices[0], 32, scn_height - 64, 0, 0.5)
-	ASSIGN_VERTEX(panels[DPAD].vertices[1], 32, scn_height - 128 - 64, 0, 0)
-	ASSIGN_VERTEX(panels[DPAD].vertices[2], 128 + 32, scn_height - 64, 0.5, 0.5)
-	ASSIGN_VERTEX(panels[DPAD].vertices[3], 128 + 32, scn_height - 128 - 64, 0.5, 0)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_LEFT], config.overlay.panel_pos[DPAD_LEFT], config.overlay.panel_texcoord[DPAD_LEFT], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_RIGHT], config.overlay.panel_pos[DPAD_RIGHT], config.overlay.panel_texcoord[DPAD_RIGHT], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_UP], config.overlay.panel_pos[DPAD_UP], config.overlay.panel_texcoord[DPAD_UP], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[DPAD_DOWN], config.overlay.panel_pos[DPAD_DOWN], config.overlay.panel_texcoord[DPAD_DOWN], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[ACCEL], config.overlay.panel_pos[ACCEL], config.overlay.panel_texcoord[ACCEL], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[BRAKE], config.overlay.panel_pos[BRAKE], config.overlay.panel_texcoord[BRAKE], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[GEAR], config.overlay.panel_pos[GEAR], config.overlay.panel_texcoord[GEAR], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[COIN], config.overlay.panel_pos[COIN], config.overlay.panel_texcoord[COIN], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[START], config.overlay.panel_pos[START], config.overlay.panel_texcoord[START], x)
+	ASSIGN_QUAD_FROM_BBOX(panels[MENU], config.overlay.panel_pos[MENU], config.overlay.panel_texcoord[MENU], x)
 
-	ASSIGN_VERTEX(panels[ACCEL].vertices[0], scn_width - 128 - 32, scn_height - 64, 0, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[1], scn_width - 128 - 32, scn_height - 128 - 64, 0, 0.5)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[2], scn_width - 32, scn_height - 64, 0.5, 1)
-	ASSIGN_VERTEX(panels[ACCEL].vertices[3], scn_width - 32, scn_height - 128 - 64, 0.5, 0.5)
-
-	ASSIGN_VERTEX(panels[BRAKE].vertices[0], scn_width - 128 - 96 - 32, scn_height - 64, 0.6, 1)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[1], scn_width - 128 - 96 - 32, scn_height - 96 - 64, 0.6, 0.6)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[2], scn_width - 128 - 32, scn_height - 64, 1, 1)
-	ASSIGN_VERTEX(panels[BRAKE].vertices[3], scn_width - 128 - 32, scn_height - 96 - 64, 1, 0.6)
-
-	ASSIGN_VERTEX(panels[GEAR].vertices[0], scn_width - 96 - 32, scn_height - 128 - 64, 0.6, 0.6)
-	ASSIGN_VERTEX(panels[GEAR].vertices[1], scn_width - 96 - 32, scn_height - 128 - 96 - 64, 0.6, 0.2)
-	ASSIGN_VERTEX(panels[GEAR].vertices[2], scn_width - 32, scn_height - 128 - 64, 1, 0.6)
-	ASSIGN_VERTEX(panels[GEAR].vertices[3], scn_width - 32, scn_height - 128 - 96 - 64, 1, 0.2)
-
-	ASSIGN_VERTEX(panels[MENU].vertices[0], 0, 1, 0, 1)
-	ASSIGN_VERTEX(panels[MENU].vertices[1], 0, 0, 0, 0)
-	ASSIGN_VERTEX(panels[MENU].vertices[2], 1, 1, 1, 1)
-	ASSIGN_VERTEX(panels[MENU].vertices[3], 1, 0, 1, 0)
-
-	active = true;
-}
-
-void Overlay::tick(void)
-{
-	active = outrun.game_state == GS_START1
-		|| outrun.game_state == GS_START2
-		|| outrun.game_state == GS_START3
-		|| outrun.game_state == GS_INGAME;
-
-	if (active)
-	{
-		SDL_MouseMotionEvent * motion_event;
-		for (uint8_t i = 0; i < Input::MOTION_COUNT; ++i)
-		{
-			motion_event = input.get_motion(i);
-
-			if (motion_event->state == SDL_PRESSED)
-			{
-				printf("touch event processed");
-			}
-		}
-	}
+	active_panels = INGAME_MASK | (1 << MENU) | (1 << BRAKE) | (1 << GEAR) | (1 << COIN);
 }
 
 void Overlay::draw(void)
 {
-	printf("overlay draw");
+	if (active_panels == 0)
+	{
+		return;
+	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -150,13 +117,16 @@ void Overlay::draw(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glBindTexture(GL_TEXTURE_2D, texture_atlas);
 
-	for (int i = 0; i < 5; ++i)
+	for (uint8_t i = 0; i < PANEL_COUNT; ++i)
 	{
-		glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		if (((active_panels >> i) & 1) > 0)
+		{
+			glVertexPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].pos);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(vertex_t), panels[i].vertices[0].texcoord);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
 	}
 
 	glDisable(GL_TEXTURE_2D);

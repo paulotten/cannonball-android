@@ -47,42 +47,42 @@
 	<collision>
 		<left>
 			<min>
-				<x>0</x>
-				<y>0</y>
+				<x>27</x>
+				<y>302</y>
 			</min>
 			<max>
-				<x>0</x>
-				<y>0</y>
+				<x>98</x>
+				<y>360</y>
 			</max>
 		</left>
 		<right>
 			<min>
-				<x>0</x>
-				<y>0</y>
+				<x>100</x>
+				<y>302</y>
 			</min>
 			<max>
-				<x>0</x>
-				<y>0</y>
+				<x>170</x>
+				<y>363</y>
 			</max>
 		</right>
 		<up>
 			<min>
-				<x>0</x>
-				<y>0</y>
+				<x>64</x>
+				<y>250</y>
 			</min>
 			<max>
-				<x>0</x>
-				<y>0</y>
+				<x>128</x>
+				<y>314</y>
 			</max>
 		</up>
 		<down>
 			<min>
-				<x>0</x>
-				<y>0</y>
+				<x>66</x>
+				<y>332</y>
 			</min>
 			<max>
-				<x>0</x>
-				<y>0</y>
+				<x>130</x>
+				<y>404</y>
 			</max>
 		</down>
 		<accel>
