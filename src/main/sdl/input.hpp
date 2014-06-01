@@ -45,7 +45,12 @@ public:
         STEP  = 12,
         TIMER = 13,
         MENU = 14,     
-    };
+	};
+
+	const static int FRONTEND_MASK = (1 << UP) | (1 << DOWN) | (1 << ACCEL);
+	const static int INGAME_MASK = FRONTEND_MASK | (1 << LEFT) | (1 << RIGHT);
+
+	uint16_t active_panels;
 
     bool keys[15];
     bool keys_old[15];

@@ -41,13 +41,13 @@ Overlay::~Overlay(void)
 void Overlay::init(void)
 {
 	int x, y, comp, length;
-	stbi_uc* data, * data4444;
+	stbi_uc* data;
 
-	std::string path = "overlay/main.png"; //put into const
+	std::string path = "overlay/main_normal.png"; //put into const
 	AAsset * asset = AAssetManager_open(__assetManager, path.c_str(), 3);
 	if (!asset)
 	{
-		printf("cannot open overlay/main.png");
+		printf("cannot open overlay/main_normal.png");
 	}
 
 	length = static_cast<int>(AAsset_getLength(asset));
@@ -93,8 +93,11 @@ void Overlay::init(void)
 	ASSIGN_QUAD_FROM_BBOX(panels[COIN], config.overlay.panel_pos[COIN], config.overlay.panel_texcoord[COIN], x)
 	ASSIGN_QUAD_FROM_BBOX(panels[START], config.overlay.panel_pos[START], config.overlay.panel_texcoord[START], x)
 	ASSIGN_QUAD_FROM_BBOX(panels[MENU], config.overlay.panel_pos[MENU], config.overlay.panel_texcoord[MENU], x)
+}
 
-	active_panels = INGAME_MASK | (1 << MENU) | (1 << BRAKE) | (1 << GEAR) | (1 << COIN);
+void Overlay::tick(void)
+{
+	active_panels = FRONTEND_MASK;
 }
 
 void Overlay::draw(void)

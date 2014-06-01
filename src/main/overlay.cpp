@@ -13,6 +13,7 @@
 #include <fstream>
 
 #include "setup.hpp"
+#include "main.hpp"
 #include "overlay.hpp"
 #include "video.hpp"
 #include "sdl\input.hpp"
@@ -86,8 +87,33 @@ void Overlay::init(void)
 	ASSIGN_QUAD_FROM_BBOX(panels[COIN], config.overlay.panel_pos[COIN], config.overlay.panel_texcoord[COIN], x)
 	ASSIGN_QUAD_FROM_BBOX(panels[START], config.overlay.panel_pos[START], config.overlay.panel_texcoord[START], x)
 	ASSIGN_QUAD_FROM_BBOX(panels[MENU], config.overlay.panel_pos[MENU], config.overlay.panel_texcoord[MENU], x)
+}
 
-	active_panels = INGAME_MASK | (1 << MENU) | (1 << BRAKE) | (1 << GEAR) | (1 << COIN);
+void Overlay::tick(void)
+{
+	if (cannonball::state == cannonball::STATE_MENU)
+	{
+		active_panels = FRONTEND_MASK;
+	}
+	else if (cannonball::state == cannonball::STATE_GAME)
+	{
+		if (outrun.game_state == GS_INIT_GAME ||
+			outrun.game_state == GS_START1 ||
+			outrun.game_state == GS_START2 || 
+			outrun.game_state == GS_START3 ||
+			outrun.game_state == GS_INGAME)
+		{
+			active_panels = INGAME_MASK;
+		}
+		else
+		{
+			active_panels = 0;
+		}
+	}
+	else
+	{
+		active_panels = 0;
+	}
 }
 
 void Overlay::draw(void)

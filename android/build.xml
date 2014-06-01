@@ -19,6 +19,10 @@
 		<copy todir="assets/overlay">
 			<fileset dir="../res/overlay" />
 		</copy>
+    <delete dir="assets/config"/>
+    <copy todir="assets/config">
+      <fileset dir="../res/config" />
+    </copy>
 	</target>
     
     <import file="custom_rules.xml" optional="true" />

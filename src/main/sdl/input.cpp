@@ -48,6 +48,8 @@ void Input::init(int pad_id, int* key_config, int* pad_config, int analog, int* 
 
     a_wheel = CENTRE;
     delay   = 0;
+
+	active_panels = FRONTEND_MASK;
 }
 
 void Input::close()
@@ -86,15 +88,18 @@ void Input::frame_done()
 					{
 						for (uint8_t j = 0; j < 15; ++j)
 						{
-							if (CHECK_BOUNDING_BOX(panels_collsion[j], touch_list[i].x, touch_list[i].y))
+							if ((active_panels & (1 << j)) > 0)
 							{
-								touch_list[i].key = j;
-								touch_list[i].key_pressed = true;
+								if (CHECK_BOUNDING_BOX(panels_collsion[j], touch_list[i].x, touch_list[i].y))
+								{
+									touch_list[i].key = j;
+									touch_list[i].key_pressed = true;
 
-								keys[j] = true;
+									keys[j] = true;
 
-								printf("Pressed %i [%i,%i]\n",
-									j, touch_list[i].x, touch_list[i].y);
+									printf("Pressed %i [%i,%i]\n",
+										j, touch_list[i].x, touch_list[i].y);
+								}
 							}
 						}
 					}

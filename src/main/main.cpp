@@ -17,6 +17,15 @@
 #ifdef __ANDROID__
 #include "android_debug.h"
 #include <SDL_touch.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <unistd.h>
+#include <jni.h>
+
+#include <android/asset_manager.h>
+extern AAssetManager * __assetManager;
 #endif
 
 // SDL Specific Code
@@ -144,6 +153,8 @@ static void tick()
     }
 
     process_events();
+
+	overlay.tick();
 
 	switch (state)
 	{
@@ -311,6 +322,31 @@ int main(int argc, char* argv[])
 
     if (loaded)
 	{
+#ifdef __ANDROID__
+		FILE* config_file = fopen(FILENAME_CONFIG, "r");
+		if (config_file == NULL)
+		{
+			AAsset * asset = AAssetManager_open(__assetManager, "config/config.xml", 3);
+			if (!asset)
+			{
+				printf("error opening config.xml from APk");
+			}
+			int length = static_cast<int>(AAsset_getLength(asset));
+			char* buffer = new char[length];
+			AAsset_read(asset, buffer, length);
+			AAsset_close(asset);
+
+			printf("read config.xml from APk");
+
+			mkdir("/sdcard/cannonball/", 0770);
+			config_file = fopen(FILENAME_CONFIG, "wb");
+			fwrite(buffer, sizeof(char), length, config_file);
+
+			delete[] buffer;
+		}
+		fclose(config_file);
+#endif
+
         // Load XML Config
         config.load(FILENAME_CONFIG);
 
