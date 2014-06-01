@@ -32,10 +32,10 @@
 #include "SDL_version.h"
 #include "SDL_mutex.h"
 #include "SDL_events.h"
-#if SDL_VERSION_ATLEAST(1,3,0)
+//#if SDL_VERSION_ATLEAST(1,3,0)
 #include "SDL_touch.h"
 #include "../../events/SDL_touch_c.h"
-#endif
+//#endif
 
 #include "../SDL_sysvideo.h"
 #include "SDL_androidvideo.h"
@@ -43,7 +43,7 @@
 #include "unicodestuff.h"
 #include "atan2i.h"
 
-#ifndef SDL_COMPATIBILITY_HACKS_SLOW_COMPATIBLE_EVENT_QUEUE
+#ifdef SDL_COMPATIBILITY_HACKS_SLOW_COMPATIBLE_EVENT_QUEUE //#ifndef
 
 #if SDL_VERSION_ATLEAST(1,3,0)
 
@@ -224,6 +224,8 @@ extern void SDL_ANDROID_MainThreadPushMultitouchButton(int id, int pressed, int 
 {
 #if SDL_VERSION_ATLEAST(1,3,0)
 	SDL_SendFingerDown(0, id, pressed ? 1 : 0, (float)x / (float)window->w, (float)y / (float)window->h, force);
+#else
+	SDL_SendFingerDown(0, id, pressed ? 1 : 0, (float)x, (float)y, force);
 #endif
 }
 
@@ -231,6 +233,8 @@ extern void SDL_ANDROID_MainThreadPushMultitouchMotion(int id, int x, int y, int
 {
 #if SDL_VERSION_ATLEAST(1,3,0)
 	SDL_SendTouchMotion(0, id, 0, (float)x / (float)window->w, (float)y / (float)window->h, force);
+#else
+	SDL_SendTouchMotion(0, id, 0, (float)x, (float)y, force);
 #endif
 }
 

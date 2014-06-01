@@ -8,15 +8,16 @@
 // Error reporting
 #include <iostream>
 
-#ifdef __ANDROID__
-#include "android_debug.h"
-#endif
-
 // SDL Library
 #include <SDL.h>
 #pragma comment(lib, "SDLmain.lib") // Replace main with SDL_main
 #pragma comment(lib, "SDL.lib")
 #pragma comment(lib, "glu32.lib")
+
+#ifdef __ANDROID__
+#include "android_debug.h"
+#include <SDL_touch.h>
+#endif
 
 // SDL Specific Code
 #include "sdl/timer.hpp"
@@ -89,6 +90,7 @@ static void process_events(void)
                 input.handle_key_up(&event.key.keysym);
                 break;
 
+#if !defined (__ANDROID__)
             case SDL_JOYAXISMOTION:
                 input.handle_joy_axis(&event.jaxis);
                 break;
@@ -109,7 +111,13 @@ static void process_events(void)
 			case SDL_MOUSEBUTTONDOWN:
 				input.handle_mouse(&event.button);
 				break;
-
+#else
+			case SDL_FINGERMOTION:
+			case SDL_FINGERDOWN:
+			case SDL_FINGERUP:
+				input.handle_finger(&event.tfinger);
+				break;
+#endif
             case SDL_QUIT:
                 // Handle quit requests (like Ctrl-c).
                 state = STATE_QUIT;
@@ -265,6 +273,23 @@ int main(int argc, char* argv[])
 
 #ifdef __ANDROID__
 	SDL_SetVideoMode(1280, 736, SDL_BPP, SDL_OPENGL);
+
+	SDL_Touch touch;
+	memset(&touch, 0, sizeof(touch));
+	touch.x_min = touch.y_min = touch.pressure_min = 0.0f;
+	touch.pressure_max = 1000000;
+	touch.x_max = 1280;
+	touch.y_max = 736;
+
+	// These constants are hardcoded inside SDL_touch.c, which makes no sense for me.
+	touch.xres = touch.yres = 32768;
+	touch.native_xres = touch.native_yres = 32768.0f;
+
+	touch.pressureres = 1;
+	touch.native_pressureres = 1.0f;
+	touch.id = 0;
+
+	SDL_AddTouch(&touch, "Android touch screen");
 #endif
 
     bool loaded = false;

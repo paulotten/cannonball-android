@@ -32,10 +32,10 @@
 #include "SDL_version.h"
 #include "SDL_mutex.h"
 #include "SDL_events.h"
-#if SDL_VERSION_ATLEAST(1,3,0)
+//#if SDL_VERSION_ATLEAST(1,3,0)
 #include "SDL_touch.h"
 #include "../../events/SDL_touch_c.h"
-#endif
+//#endif
 
 #include "../SDL_sysvideo.h"
 #include "SDL_androidvideo.h"
@@ -44,7 +44,7 @@
 #include "atan2i.h"
 
 
-#ifdef SDL_COMPATIBILITY_HACKS_SLOW_COMPATIBLE_EVENT_QUEUE
+#ifndef SDL_COMPATIBILITY_HACKS_SLOW_COMPATIBLE_EVENT_QUEUE	//#ifdef
 
 // This code is left here to rot - it's bad, complicated and needed by only one applicaiton
 
@@ -139,13 +139,14 @@ extern void SDL_ANDROID_PumpEvents()
 				SDL_PrivateAppActive(ev.active.gain, ev.active.state);
 				break;
 #endif
-#if SDL_VERSION_ATLEAST(1,3,0)
+//#if SDL_VERSION_ATLEAST(1,3,0)
 			case SDL_FINGERMOTION:
-				SDL_SendTouchMotion(0, ev.tfinger.fingerId, 0, (float)ev.tfinger.x / (float)window->w, (float)ev.tfinger.y / (float)window->h, ev.tfinger.pressure);
+				SDL_SendTouchMotion(0, ev.tfinger.fingerId, 0, (float)ev.tfinger.x, (float)ev.tfinger.y, ev.tfinger.pressure);
 				break;
 			case SDL_FINGERDOWN:
-				SDL_SendFingerDown(0, ev.tfinger.fingerId, ev.tfinger.state ? 1 : 0, (float)ev.tfinger.x / (float)window->w, (float)ev.tfinger.y / (float)window->h, ev.tfinger.pressure);
+				SDL_SendFingerDown(0, ev.tfinger.fingerId, ev.tfinger.state ? 1 : 0, (float)ev.tfinger.x, (float)ev.tfinger.y, ev.tfinger.pressure);
 				break;
+#if SDL_VERSION_ATLEAST(1,3,0)
 			case SDL_TEXTINPUT:
 				SDL_SendKeyboardText(ev.text.text);
 				break;
@@ -153,6 +154,7 @@ extern void SDL_ANDROID_PumpEvents()
 				SDL_SendMouseWheel( ANDROID_CurrentWindow, ev.wheel.x, ev.wheel.y );
 				break;
 #endif
+//#endif
 		}
 
 		SDL_mutexP(BufferedEventsMutex);
@@ -400,7 +402,8 @@ extern void SDL_ANDROID_MainThreadPushJoystickBall(int joy, int ball, int x, int
 }
 extern void SDL_ANDROID_MainThreadPushMultitouchButton(int id, int pressed, int x, int y, int force)
 {
-#if SDL_VERSION_ATLEAST(1,3,0)
+	__android_log_print(ANDROID_LOG_INFO, "SDL-app", "SDL_ANDROID_MainThreadPushMultitouchButton : %i", pressed);
+//#if SDL_VERSION_ATLEAST(1,3,0)
 	int nextEvent = getNextEventAndLock();
 	if( nextEvent == -1 )
 		return;
@@ -416,11 +419,11 @@ extern void SDL_ANDROID_MainThreadPushMultitouchButton(int id, int pressed, int 
 	
 	BufferedEventsEnd = nextEvent;
 	SDL_mutexV(BufferedEventsMutex);
-#endif
+//#endif
 };
 extern void SDL_ANDROID_MainThreadPushMultitouchMotion(int id, int x, int y, int force)
 {
-#if SDL_VERSION_ATLEAST(1,3,0)
+//#if SDL_VERSION_ATLEAST(1,3,0)
 	int nextEvent = getNextEventAndLock();
 	if( nextEvent == -1 )
 		return;
@@ -432,10 +435,10 @@ extern void SDL_ANDROID_MainThreadPushMultitouchMotion(int id, int x, int y, int
 	ev->tfinger.x = x;
 	ev->tfinger.y = y;
 	ev->tfinger.pressure = force;
-	
+
 	BufferedEventsEnd = nextEvent;
 	SDL_mutexV(BufferedEventsMutex);
-#endif
+//#endif
 };
 
 extern void SDL_ANDROID_MainThreadPushMouseWheel(int x, int y)

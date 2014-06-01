@@ -12,6 +12,10 @@
 #include <cstdlib> // abs
 #include "sdl/input.hpp"
 
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
+
 Input input;
 
 Input::Input(void)
@@ -399,6 +403,8 @@ void Input::handle_motion(SDL_MouseMotionEvent* evt)
 	if (evt->which > -1 &&
 		evt->which < TOUCH_COUNT)
 	{
+		printf("handle_motion : %i", evt->which);
+
 		memcpy(&touch_list[evt->which], evt, sizeof(SDL_MouseMotionEvent));
 
 		touch_list[evt->which].processed = false;
@@ -410,6 +416,8 @@ void Input::handle_mouse(SDL_MouseButtonEvent* evt)
 	if (evt->which > -1 &&
 		evt->which < TOUCH_COUNT)
 	{
+		printf("handle_mouse : %i", evt->which);
+
 		touch_list[evt->which].type = evt->type;
 		touch_list[evt->which].which = evt->which;
 		touch_list[evt->which].state = evt->state;
@@ -420,3 +428,31 @@ void Input::handle_mouse(SDL_MouseButtonEvent* evt)
 	}
 }
 
+#if defined (__ANDROID__)
+void Input::handle_finger(SDL_TouchFingerEvent* evt)
+{
+	if (evt->fingerId > -1 &&
+		evt->fingerId < TOUCH_COUNT)
+	{
+		printf("handle_finger : %i, %i, %i [%i,%i]", (int)evt->fingerId, evt->type, evt->state, evt->x, evt->y);
+
+		if (evt->type == SDL_FINGERDOWN)
+			touch_list[evt->fingerId].state = SDL_PRESSED;
+		else
+			touch_list[evt->fingerId].state = 0;
+
+		switch (evt->type)
+		{
+			case SDL_FINGERMOTION: touch_list[evt->fingerId].type = SDL_MOUSEMOTION; break;
+			case SDL_FINGERDOWN: touch_list[evt->fingerId].type = SDL_MOUSEBUTTONDOWN; break;
+			case SDL_FINGERUP: touch_list[evt->fingerId].type = SDL_MOUSEBUTTONUP; break;
+		}
+		
+		touch_list[evt->fingerId].which = evt->fingerId;
+		touch_list[evt->fingerId].x = evt->x;
+		touch_list[evt->fingerId].y = evt->y;
+
+		touch_list[evt->fingerId].processed = false;
+	}
+}
+#endif

@@ -34,6 +34,7 @@
 #include "SDL_keyboard.h"
 #include "SDL_mouse.h"
 #include "SDL_joystick.h"
+#include "SDL_touch.h"
 #include "SDL_quit.h"
 
 #include "begin_code.h"
@@ -74,8 +75,16 @@ typedef enum {
        SDL_EVENT_RESERVED5,		/**< Reserved for future use.. */
        SDL_EVENT_RESERVED6,		/**< Reserved for future use.. */
        SDL_EVENT_RESERVED7,		/**< Reserved for future use.. */
+
+		/* Touch events */
+		SDL_FINGERDOWN,
+		SDL_FINGERUP,
+		SDL_FINGERMOTION,
+		SDL_TOUCHBUTTONDOWN,
+		SDL_TOUCHBUTTONUP,
+
        /** Events SDL_USEREVENT through SDL_MAXEVENTS-1 are for your use */
-       SDL_USEREVENT = 24,
+       SDL_USEREVENT = 29,
        /** This last event is only for bounding internal arrays
 	*  It is the number of bits in the event mask datatype -- Uint32
         */
@@ -187,6 +196,43 @@ typedef struct SDL_JoyButtonEvent {
 	Uint8 state;	/**< SDL_PRESSED or SDL_RELEASED */
 } SDL_JoyButtonEvent;
 
+/**
+*  \brief Touch finger motion/finger event structure (event.tfinger.*)
+*/
+typedef struct SDL_TouchFingerEvent
+{
+	Uint32 type;        /**< ::SDL_FINGERMOTION OR
+						SDL_FINGERDOWN OR SDL_FINGERUP*/
+	Uint32 timestamp;
+	SDL_TouchID touchId;        /**< The touch device id */
+	SDL_FingerID fingerId;
+	Uint8 state;        /**< The current button state */
+	Uint8 padding1;
+	Uint8 padding2;
+	Uint8 padding3;
+	Uint16 x;
+	Uint16 y;
+	Sint16 dx;
+	Sint16 dy;
+	Uint16 pressure;
+} SDL_TouchFingerEvent;
+
+
+/**
+*  \brief Touch finger motion/finger event structure (event.tbutton.*)
+*/
+typedef struct SDL_TouchButtonEvent
+{
+	Uint32 type;        /**< ::SDL_TOUCHBUTTONUP OR SDL_TOUCHBUTTONDOWN */
+	Uint32 timestamp;
+	Uint32 windowID;    /**< The window with mouse focus, if any */
+	SDL_TouchID touchId;        /**< The touch device index */
+	Uint8 state;        /**< The current button state */
+	Uint8 button;        /**< The button changing state */
+	Uint8 padding1;
+	Uint8 padding2;
+} SDL_TouchButtonEvent;
+
 /** The "window resized" event
  *  When you get this event, you are responsible for setting a new video
  *  mode with the new width and height.
@@ -239,6 +285,8 @@ typedef union SDL_Event {
 	SDL_QuitEvent quit;
 	SDL_UserEvent user;
 	SDL_SysWMEvent syswm;
+	SDL_TouchFingerEvent tfinger;   /**< Touch finger event data */
+	SDL_TouchButtonEvent tbutton;   /**< Touch button event data */
 } SDL_Event;
 
 
@@ -346,6 +394,8 @@ extern DECLSPEC SDL_EventFilter SDLCALL SDL_GetEventFilter(void);
 * current processing state of the specified event.
 */
 extern DECLSPEC Uint8 SDLCALL SDL_EventState(Uint8 type, int state);
+/*@}*/
+#define SDL_GetEventState(type) SDL_EventState(type, SDL_QUERY)
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

@@ -32,10 +32,10 @@
 #include "SDL_version.h"
 #include "SDL_mutex.h"
 #include "SDL_events.h"
-#if SDL_VERSION_ATLEAST(1,3,0)
+//#if SDL_VERSION_ATLEAST(1,3,0)	//Enabled for 1.2 
 #include "SDL_touch.h"
 #include "../../events/SDL_touch_c.h"
-#endif
+//#endif
 
 #include "../SDL_sysvideo.h"
 #include "SDL_androidvideo.h"
@@ -55,7 +55,7 @@ static inline SDL_scancode TranslateKey(int scancode)
 }
 
 static int isTrackballUsed = 0;
-int SDL_ANDROID_isMouseUsed = 1;	//	previously set to 0 and activated via java
+int SDL_ANDROID_isMouseUsed = 0;	
 
 #define NORMALIZE_FLOAT_32767(X) (fminf(32767.0f, fmaxf(-32767.0f, (X) * 32767.0f)))
 
@@ -82,7 +82,7 @@ static int maxForce = 0;
 static int maxRadius = 0;
 int SDL_ANDROID_joysticksAmount = 0;
 static int SDL_ANDROID_isAccelerometerUsed = 0;
-static int isMultitouchUsed = 0;
+static int isMultitouchUsed = 1;	//previously set to false
 SDL_Joystick *SDL_ANDROID_CurrentJoysticks[JOY_GAMEPAD4+1];
 static int TrackballDampening = 0; // in milliseconds
 static Uint32 lastTrackballAction = 0;
@@ -409,14 +409,13 @@ static void SendMultitouchEvents( int x, int y, int action, int pointerId, int f
 {
 	if( isMultitouchUsed && (action == MOUSE_DOWN || action == MOUSE_UP || action == MOUSE_MOVE) ) // Ignore hover events
 	{
-#if SDL_VERSION_ATLEAST(1,3,0)
+//#if SDL_VERSION_ATLEAST(1,3,0) 
 		// Use nifty SDL 1.3 multitouch API
 		if( action == MOUSE_MOVE )
 			SDL_ANDROID_MainThreadPushMultitouchMotion(pointerId, x, y, force + radius);
 		else
 			SDL_ANDROID_MainThreadPushMultitouchButton(pointerId, action == MOUSE_DOWN ? 1 : 0, x, y, force + radius);
-#endif
-
+//#endif
 		if( action == MOUSE_DOWN )
 			SDL_ANDROID_MainThreadPushJoystickButton(JOY_TOUCHSCREEN, pointerId, SDL_PRESSED);
 		SDL_ANDROID_MainThreadPushJoystickAxis(JOY_TOUCHSCREEN, pointerId+4, force + radius); // Radius is more sensitive usually

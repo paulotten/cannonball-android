@@ -80,6 +80,9 @@ public:
     void handle_joy_up(SDL_JoyButtonEvent*);
 	void handle_motion(SDL_MouseMotionEvent*);
 	void handle_mouse(SDL_MouseButtonEvent*);
+#if defined (__ANDROID__)
+	void handle_finger(SDL_TouchFingerEvent*);
+#endif
     void frame_done();
     bool is_pressed(presses p);
 	bool has_pressed(presses p);
