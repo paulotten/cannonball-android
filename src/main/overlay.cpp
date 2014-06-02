@@ -94,25 +94,56 @@ void Overlay::tick(void)
 	if (cannonball::state == cannonball::STATE_MENU)
 	{
 		active_panels = FRONTEND_MASK;
+		input.active_panels = Input::FRONTEND_MASK;
 	}
 	else if (cannonball::state == cannonball::STATE_GAME)
 	{
-		if (outrun.game_state == GS_INIT_GAME ||
-			outrun.game_state == GS_START1 ||
-			outrun.game_state == GS_START2 || 
-			outrun.game_state == GS_START3 ||
-			outrun.game_state == GS_INGAME)
+		switch (outrun.game_state)
 		{
-			active_panels = INGAME_MASK;
-		}
-		else
-		{
-			active_panels = 0;
+			case GS_INIT_GAME:
+			case GS_START1:
+			case GS_START2:
+			case GS_START3:
+			case GS_INGAME:
+			{
+				active_panels = INGAME_MASK;
+				input.active_panels = Input::INGAME_MASK;
+				break;
+			}
+			case GS_ATTRACT:
+			case GS_INIT_LOGO:
+			case GS_LOGO:
+			{
+				active_panels = START_MASK;
+				input.active_panels = Input::START_MASK;
+				break;
+			}
+			case GS_INIT_MUSIC:
+			case GS_MUSIC:
+			{
+				active_panels = MUSIC_MASK;
+				input.active_panels = Input::MUSIC_MASK;
+				break;
+			}
+			case GS_INIT_BEST2:
+			case GS_BEST2:
+			{
+				active_panels = BEST_MASK;
+				input.active_panels = Input::BEST_MASK;
+				break;
+			}
+			default:
+			{
+				active_panels = 0;
+				input.active_panels = 0;
+				break;
+			}
 		}
 	}
 	else
 	{
 		active_panels = 0;
+		input.active_panels = 0;
 	}
 }
 

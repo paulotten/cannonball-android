@@ -37,7 +37,12 @@ public:
 	const static int PANEL_COUNT = 10;
 
 	const static int FRONTEND_MASK = (1 << DPAD_UP) | (1 << DPAD_DOWN) | (1 << ACCEL);
-	const static int INGAME_MASK = FRONTEND_MASK | (1 << DPAD_LEFT) | (1 << DPAD_RIGHT);
+	const static int START_MASK = (1 << COIN) | (1 << MENU);
+	const static int MUSIC_MASK = (1 << COIN) | (1 << START) | (1 << MENU) | 
+		(1 << DPAD_LEFT) | (1 << DPAD_RIGHT);
+	const static int BEST_MASK = (1 << MENU) | (1 << DPAD_LEFT) | (1 << DPAD_RIGHT) | (1 << ACCEL);
+	const static int INGAME_MASK = FRONTEND_MASK | (1 << DPAD_LEFT) | (1 << DPAD_RIGHT) | 
+		(1 << BRAKE) | (1 << GEAR) | (1 << MENU);
 	
 	Overlay();
 	~Overlay();

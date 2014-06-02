@@ -13,6 +13,7 @@ See license.txt for more details.
 #include <fstream>
 
 #include "setup.hpp"
+#include "main.hpp"
 #include "overlay.hpp"
 #include "video.hpp"
 #include "sdl\input.hpp"
@@ -97,7 +98,60 @@ void Overlay::init(void)
 
 void Overlay::tick(void)
 {
-	active_panels = FRONTEND_MASK;
+	if (cannonball::state == cannonball::STATE_MENU)
+	{
+		active_panels = FRONTEND_MASK;
+		input.active_panels = Input::FRONTEND_MASK;
+	}
+	else if (cannonball::state == cannonball::STATE_GAME)
+	{
+		switch (outrun.game_state)
+		{
+		case GS_INIT_GAME:
+		case GS_START1:
+		case GS_START2:
+		case GS_START3:
+		case GS_INGAME:
+		{
+			active_panels = INGAME_MASK;
+			input.active_panels = Input::INGAME_MASK;
+			break;
+		}
+		case GS_ATTRACT:
+		case GS_INIT_LOGO:
+		case GS_LOGO:
+		{
+			active_panels = START_MASK;
+			input.active_panels = Input::START_MASK;
+			break;
+		}
+		case GS_INIT_MUSIC:
+		case GS_MUSIC:
+		{
+			active_panels = MUSIC_MASK;
+			input.active_panels = Input::MUSIC_MASK;
+			break;
+		}
+		case GS_INIT_BEST2:
+		case GS_BEST2:
+		{
+			active_panels = BEST_MASK;
+			input.active_panels = Input::BEST_MASK;
+			break;
+		}
+		default:
+		{
+			active_panels = 0;
+			input.active_panels = 0;
+			break;
+		}
+		}
+	}
+	else
+	{
+		active_panels = 0;
+		input.active_panels = 0;
+	}
 }
 
 void Overlay::draw(void)

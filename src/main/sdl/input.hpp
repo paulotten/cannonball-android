@@ -48,7 +48,12 @@ public:
 	};
 
 	const static int FRONTEND_MASK = (1 << UP) | (1 << DOWN) | (1 << ACCEL);
-	const static int INGAME_MASK = FRONTEND_MASK | (1 << LEFT) | (1 << RIGHT);
+	const static int START_MASK = (1 << COIN) | (1 << START) | (1 << MENU);
+	const static int MUSIC_MASK = (1 << COIN) | (1 << START) | (1 << MENU) |
+		(1 << LEFT) | (1 << RIGHT); 
+	const static int BEST_MASK = (1 << MENU) | (1 << LEFT) | (1 << RIGHT) | (1 << ACCEL);
+	const static int INGAME_MASK = FRONTEND_MASK | (1 << LEFT) | 
+		(1 << RIGHT) | (1 << BRAKE) | (1 << GEAR1) | (1 << GEAR2) | (1 << MENU);
 
 	uint16_t active_panels;
 
