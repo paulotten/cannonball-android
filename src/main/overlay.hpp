@@ -43,11 +43,18 @@ public:
 	const static int BEST_MASK = (1 << MENU) | (1 << DPAD_LEFT) | (1 << DPAD_RIGHT) | (1 << ACCEL);
 	const static int INGAME_MASK = FRONTEND_MASK | (1 << DPAD_LEFT) | (1 << DPAD_RIGHT) | 
 		(1 << BRAKE) | (1 << GEAR) | (1 << MENU);
+		
+	const static int NORMAL_ATLAS = 0;
+	const static int PRESSED_ATLAS = 1;
 	
 	Overlay();
 	~Overlay();
 
 	void init();
+	
+	void load();
+	
+	void unload();
 
 	void tick();
 
@@ -57,9 +64,14 @@ private:
 
 	int filesize(const char*);
 
-	uint32_t texture_atlas;
+	uint32_t texture_atlas[2];
+	uint32_t texture_width;
+	uint32_t texture_height;
+	
+	uint16_t loaded;
 
 	uint16_t active_panels;
+	uint16_t pressed_panels;
 	quad_t panels[PANEL_COUNT];
 	
 };

@@ -16,7 +16,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/../../../src/main/sdl \
 	$(LOCAL_PATH)/../../../external \
 	$(LOCAL_PATH)/../sdl-$(SDL_VERSION)/include \
-	/cygdrive/c/boost_1_52_0 \
+	/cygdrive/c/boost_1_55_0 \
 
 LOCAL_SRC_FILES := \
 	$(LOCAL_SRC_PATH)directx/ffeedback.cpp \
