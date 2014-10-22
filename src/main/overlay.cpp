@@ -20,7 +20,7 @@
 #include "engine\outrun.hpp"
 
 #include <SDL_opengl.h>
-#include <stb_image.c>
+#include <stb_image.h>
 
 Overlay overlay;
 
@@ -69,7 +69,7 @@ void Overlay::init(void)
 
 void Overlay::load(void)
 {
-	const char*[] files = { FILENAME_OVERLAY, FILENAME_OVERLAY_PRESSED };
+	const char* files[] = { FILENAME_OVERLAY, FILENAME_OVERLAY_PRESSED };
 
 	int x, y, comp, length;
 	stbi_uc * data;

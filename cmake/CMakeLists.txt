@@ -25,7 +25,8 @@ else()
     include(${DCMAKE})
 endif(TARGET)
 
-set(BOOST_INCLUDEDIR ${lib_base}/boost_1_54_0)
+set(BOOST_INCLUDEDIR $ENV{BOOST_ROOT})
+message("Boost Include Dir $ENV{BOOST_ROOT}")
 find_package(Boost REQUIRED)
 
 # Include
