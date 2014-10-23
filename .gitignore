@@ -265,3 +265,5 @@ android/gen/com/octodev/cannonball/R.java
 android/gen/R.java.d
 android/assets/roms/roms.txt
 android/assets/roms/roms.txt
+/external/sdl-1.2/lib
+/external/sdl-1.2/VisualC/UpgradeLog.htm

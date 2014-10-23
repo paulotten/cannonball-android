@@ -83,7 +83,7 @@ void Overlay::load(void)
 		if (!src)
 		{
 			std::cout << "cannot open rom: " << "" << std::endl;
-			//return 1; // fail
+			return; // fail
 		}
 
 		length = filesize(files[i]);
@@ -201,6 +201,7 @@ void Overlay::draw(void)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glEnable(GL_BLEND);
+	glColor4ub(255, 255, 255, 255);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_TEXTURE_2D);

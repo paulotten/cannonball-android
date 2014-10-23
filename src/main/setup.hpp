@@ -4,7 +4,7 @@
 #include "SDL_video.h"
 
 const static char* FILENAME_OVERLAY = "res/overlay/main_normal.png";
-const static char* FILENAME_OVERLAY_PRESSED = "res/overlay/main_presed.png";
+const static char* FILENAME_OVERLAY_PRESSED = "res/overlay/main_pressed.png";
 
 #ifdef __ANDROID__
 
