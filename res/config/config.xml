@@ -4,7 +4,7 @@
 	<window>
 		<scale>2</scale>
 	</window>
-	<scanlines>0</scanlines>
+	<scanlines>60</scanlines>
 	<fps>2</fps>
 	<widescreen>1</widescreen>
 	<hires>0</hires>

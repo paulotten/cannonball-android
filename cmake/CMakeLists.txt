@@ -44,6 +44,9 @@ file(WRITE ${main_cpp_base}/setup.hpp
 
 #ifdef __ANDROID__
 
+const static char* FILENAME_OVERLAY = "overlay/main_normal.png";
+const static char* FILENAME_OVERLAY_PRESSED = "overlay/main_pressed.png";
+
 const static char* FILENAME_CONFIG = \"/sdcard/config.xml\";
 const static char* FILENAME_SCORES = \"/sdcard/hiscores\";
 const static char* FILENAME_TTRIAL = \"/sdcard/hiscores_timetrial\";
@@ -52,6 +55,9 @@ const static int SDL_FLAGS = ${sdl_flags};
 const static int SDL_BPP = 16;
 
 #else 
+
+const static char* FILENAME_OVERLAY = "res/overlay/main_normal.png";
+const static char* FILENAME_OVERLAY_PRESSED = "res/overlay/main_pressed.png";
 
 const static char* FILENAME_CONFIG = \"${xml_directory}config.xml\";
 const static char* FILENAME_SCORES = \"${xml_directory}hiscores\";
