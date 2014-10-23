@@ -82,25 +82,21 @@ void Input::frame_done()
 		{
 			if (touch_list[i].state == SDL_PRESSED)
 			{
-				if (touch_list[i].key_pressed == false)
+				if (touch_list[i].key_pressed == false &&
+                    touch_list[i].type == SDL_MOUSEBUTTONDOWN)
 				{
-					if (touch_list[i].type == SDL_MOUSEBUTTONDOWN)
+					for (uint8_t j = 0; j < 15; ++j)
 					{
-						for (uint8_t j = 0; j < 15; ++j)
+						if ((active_panels & (1 << j)) > 0 &&
+                            CHECK_BOUNDING_BOX(panels_collsion[j], touch_list[i].x, touch_list[i].y))
 						{
-							if ((active_panels & (1 << j)) > 0)
-							{
-								if (CHECK_BOUNDING_BOX(panels_collsion[j], touch_list[i].x, touch_list[i].y))
-								{
-									touch_list[i].key = j;
-									touch_list[i].key_pressed = true;
+							touch_list[i].key = j;
+							touch_list[i].key_pressed = true;
 
-									keys[j] = true;
+							keys[j] = true;
 
-									printf("Pressed %i [%i,%i]\n",
-										j, touch_list[i].x, touch_list[i].y);
-								}
-							}
+							printf("Pressed %i [%i,%i]\n",
+								j, touch_list[i].x, touch_list[i].y);
 						}
 					}
 				}

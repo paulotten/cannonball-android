@@ -21,7 +21,7 @@ See license.txt for more details.
 
 #include "android_debug.h"
 #include <GLES/gl.h>
-#include <stb_image.c>
+#include <stb_image.h>
 
 #include <unistd.h>
 #include <jni.h>
@@ -90,6 +90,7 @@ void Overlay::load(void)
 		if (!asset)
 		{
 			printf("cannot open overlay/main_normal.png");
+            return;
 		}
 
 		length = static_cast<int>(AAsset_getLength(asset));
@@ -186,6 +187,23 @@ void Overlay::tick(void)
 		active_panels = 0;
 		input.active_panels = 0;
 	}
+
+    for (int key = 0; key < Input::_MAX; ++key)
+    {
+        int overlay_element = map_control_overlay(key);
+
+        if (overlay_element)
+        {
+            if (input.is_pressed((Input::presses)key))
+            {
+                pressed_panels |= (1 << overlay_element);
+            }
+            else
+            {
+                pressed_panels &= ~(1 << overlay_element);
+            }
+        }
+    }
 }
 
 void Overlay::draw(void)
@@ -207,6 +225,7 @@ void Overlay::draw(void)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glEnable(GL_BLEND);
+	glColor4ub(255, 255, 255, 255);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_TEXTURE_2D);
@@ -241,6 +260,36 @@ void Overlay::draw(void)
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glPopMatrix();
+}
+
+int Overlay::map_control_overlay (int control)
+{
+    switch (control)
+    {
+    case Input::LEFT:
+        return DPAD_LEFT;
+    case Input::RIGHT:
+        return DPAD_RIGHT;
+    case Input::UP:
+        return DPAD_UP;
+    case Input::DOWN:
+        return DPAD_DOWN;
+    case Input::ACCEL:
+        return ACCEL;
+    case Input::BRAKE:
+        return BRAKE;
+    case Input::GEAR1:
+    case Input::GEAR2:
+        return GEAR;
+    case Input::START:
+        return START;
+    case Input::COIN:
+        return COIN;
+    case Input::MENU:
+        return MENU;
+    default:
+        return -1;
+    }
 }
 
 int Overlay::filesize(const char*)

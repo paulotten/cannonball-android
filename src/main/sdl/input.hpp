@@ -45,6 +45,8 @@ public:
         STEP  = 12,
         TIMER = 13,
         MENU = 14,     
+
+        _MAX = 15,
 	};
 
 	const static int FRONTEND_MASK = (1 << UP) | (1 << DOWN) | (1 << ACCEL);

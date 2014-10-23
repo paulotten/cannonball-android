@@ -3,10 +3,10 @@
 
 #include "SDL_video.h"
 
-const static char* FILENAME_OVERLAY = "res/overlay/main_normal.png";
-const static char* FILENAME_OVERLAY_PRESSED = "res/overlay/main_pressed.png";
-
 #ifdef __ANDROID__
+
+const static char* FILENAME_OVERLAY = "overlay/main_normal.png";
+const static char* FILENAME_OVERLAY_PRESSED = "overlay/main_pressed.png";
 
 const static char* FILENAME_CONFIG = "/sdcard/config.xml";
 const static char* FILENAME_SCORES = "/sdcard/hiscores";
@@ -16,6 +16,9 @@ const static int SDL_FLAGS = SDL_SWSURFACE | SDL_DOUBLEBUF;
 const static int SDL_BPP = 16;
 
 #else 
+
+const static char* FILENAME_OVERLAY = "res/overlay/main_normal.png";
+const static char* FILENAME_OVERLAY_PRESSED = "res/overlay/main_pressed.png";
 
 const static char* FILENAME_CONFIG = "./config.xml";
 const static char* FILENAME_SCORES = "./hiscores";

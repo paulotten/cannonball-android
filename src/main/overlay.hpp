@@ -47,18 +47,20 @@ public:
 	const static int NORMAL_ATLAS = 0;
 	const static int PRESSED_ATLAS = 1;
 	
-	Overlay();
-	~Overlay();
+	Overlay (void);
+	~Overlay (void);
 
-	void init();
+	void init (void);
 	
-	void load();
+	void load (void);
 	
-	void unload();
+	void unload (void);
 
-	void tick();
+	void tick (void);
 
-	void draw();
+	void draw (void);
+
+    static int map_control_overlay (int control);
 
 private:
 

@@ -43,4 +43,6 @@ endif
 
 NDK_PATH := $(shell dirname $(shell which ndk-build))
 
-include $(call all-subdir-makefiles)
+include ../src/main/Android.mk
+
+include ../external/sdl-1.2/Android.mk
