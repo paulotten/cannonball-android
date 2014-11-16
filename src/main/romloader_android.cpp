@@ -88,7 +88,7 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
 }
 
 // Load LayOut Level As Binary File
-int RomLoader::load_level(const char* filename)
+int RomLoader::load_binary(const char* filename)
 {
 	// --------------------------------------------------------------------------------------------
 	// Read LayOut Data File

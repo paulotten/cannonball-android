@@ -13,6 +13,7 @@
 #include "menu.hpp"
 #include "setup.hpp"
 #include "../utils.hpp"
+#include "../cannonboard/interface.hpp"
 
 #include "engine/ohud.hpp"
 #include "engine/oinputs.hpp"
@@ -21,6 +22,7 @@
 #include "engine/opalette.hpp"
 #include "engine/otiles.hpp"
 
+#include "frontend/cabdiag.hpp"
 #include "frontend/ttrial.hpp"
 
 #ifdef __ANDROID__
@@ -68,9 +70,16 @@ const static char* ENTRY_START_CONT = "START CONTINUOUS MODE";
 const static char* ENTRY_VIDEO      = "VIDEO";
 const static char* ENTRY_SOUND      = "SOUND";
 const static char* ENTRY_CONTROLS   = "CONTROLS";
+const static char* ENTRY_CANNONBOARD= "CANNONBOARD";
 const static char* ENTRY_ENGINE     = "GAME ENGINE";
 const static char* ENTRY_SCORES     = "CLEAR HISCORES";
 const static char* ENTRY_SAVE       = "SAVE AND RETURN";
+
+// CannonBoard Menu
+const static char* ENTRY_C_INTERFACE= "INTERFACE DIAGNOSTICS";
+const static char* ENTRY_C_INPUTS   = "INPUT TEST";
+const static char* ENTRY_C_OUTPUTS  = "OUTPUT TEST";
+const static char* ENTRY_C_CRT      = "CRT TEST";
 
 // Video Menu
 const static char* ENTRY_FPS        = "FRAME RATE ";
@@ -111,14 +120,17 @@ const static char* ENTRY_MUSIC2     = "PASSING BREEZE";
 const static char* ENTRY_MUSIC3     = "SPLASH WAVE";
 const static char* ENTRY_MUSIC4     = "LAST WAVE";
 
-Menu::Menu(void)
+Menu::Menu(Interface* cannonboard)
 {
-    ttrial = new TTrial(config.ttrial.best_times);
+    this->cannonboard = cannonboard;
+    cabdiag = new CabDiag(cannonboard);
+    ttrial  = new TTrial(config.ttrial.best_times);
 }
 
 
 Menu::~Menu(void)
 {
+    delete cabdiag;
     delete ttrial;
 }
 
@@ -152,12 +164,23 @@ void Menu::populate()
 	#ifdef COMPILE_SOUND_CODE
     menu_settings.push_back(ENTRY_SOUND);
     #endif
+	
 	#if !defined (__ANDROID__)
 	menu_settings.push_back(ENTRY_CONTROLS);
-	#endif    
+	#endif 
+	
+    if (config.cannonboard.enabled)
+        menu_settings.push_back(ENTRY_CANNONBOARD);
+		
     menu_settings.push_back(ENTRY_ENGINE);
     menu_settings.push_back(ENTRY_SCORES);
     menu_settings.push_back(ENTRY_SAVE);
+
+    menu_cannonboard.push_back(ENTRY_C_INTERFACE);
+    menu_cannonboard.push_back(ENTRY_C_INPUTS);
+    menu_cannonboard.push_back(ENTRY_C_OUTPUTS);
+    menu_cannonboard.push_back(ENTRY_C_CRT);
+    menu_cannonboard.push_back(ENTRY_BACK);
 
     menu_video.push_back(ENTRY_FPS);
     menu_video.push_back(ENTRY_FULLSCREEN);
@@ -198,7 +221,7 @@ void Menu::populate()
     menu_musictest.push_back(ENTRY_MUSIC4);
     menu_musictest.push_back(ENTRY_BACK);
 
-    menu_about.push_back("CANNONBALL 0.22A © CHRIS WHITE 2014");
+    menu_about.push_back("CANNONBALL 0.3 © CHRIS WHITE 2014");
     menu_about.push_back("REASSEMBLER.BLOGSPOT.COM");
     menu_about.push_back(" ");
     menu_about.push_back("CANNONBALL IS FREE AND MAY NOT BE SOLD.");
@@ -232,6 +255,7 @@ void Menu::init()
     video.sprite_layer->set_x_clip(false); // Stop clipping in wide-screen mode.
     video.sprite_layer->reset();
     video.clear_text_ram();
+    video.tile_layer->restore_tiles();
     ologo.enable(LOGO_Y);
 
     // Setup palette, road and colours for background
@@ -268,10 +292,13 @@ void Menu::init()
     frame = 0;
     message_counter = 0;
 
+    if (config.cannonboard.enabled)
+        display_message(cannonboard->started() ? "CANNONBOARD FOUND!" : "CANNONBOARD ERROR!");
+
     state = STATE_MENU;
 }
 
-void Menu::tick()
+void Menu::tick(Packet* packet)
 {
     switch (state)
     {
@@ -279,6 +306,15 @@ void Menu::tick()
         case STATE_REDEFINE_KEYS:
         case STATE_REDEFINE_JOY:
             tick_ui();
+            break;
+
+        case STATE_DIAGNOSTICS:
+            if (cabdiag->tick(packet))
+            {
+                init();
+                set_menu(&menu_cannonboard);
+                refresh_menu();
+            }
             break;
 
         case STATE_TTRIAL:
@@ -415,23 +451,23 @@ void Menu::draw_text(std::string s)
 void Menu::tick_menu()
 {
     // Tick Controls
+	
 	//Mouse input!!
-
-    if (input.has_pressed(Input::DOWN) || input.is_analog_r())
+    if (input.has_pressed(Input::DOWN) || oinputs.is_analog_r())
     {
         osoundint.queue_sound(sound::BEEP1);
 
         if (++cursor >= (int16_t) menu_selected->size())
             cursor = 0;
     }
-    else if (input.has_pressed(Input::UP) || input.is_analog_l())
+    else if (input.has_pressed(Input::UP) || oinputs.is_analog_l())
     {
         osoundint.queue_sound(sound::BEEP1);
 
         if (--cursor < 0)
             cursor = menu_selected->size() - 1;
     }
-    else if (input.has_pressed(Input::ACCEL) || input.has_pressed(Input::START))
+    else if (input.has_pressed(Input::ACCEL) || input.has_pressed(Input::START) || oinputs.is_analog_select())
     {
         // Get option that was selected
         const char* OPTION = menu_selected->at(cursor).c_str();
@@ -439,7 +475,12 @@ void Menu::tick_menu()
         if (menu_selected == &menu_main)
         {
             if (SELECTED(ENTRY_PLAYGAME))
+            {
                 start_game(Outrun::MODE_ORIGINAL);
+                //cabdiag->set(CabDiag::STATE_MOTORT);
+                //state = STATE_DIAGNOSTICS;
+                return;
+            }
             else if (SELECTED(ENTRY_GAMEMODES))
                 set_menu(&menu_gamemodes);
             else if (SELECTED(ENTRY_SETTINGS))
@@ -504,7 +545,9 @@ void Menu::tick_menu()
         }
         else if (menu_selected == &menu_settings)
         {
-            if (SELECTED(ENTRY_VIDEO))
+            if (SELECTED(ENTRY_CANNONBOARD))
+                set_menu(&menu_cannonboard);
+            else if (SELECTED(ENTRY_VIDEO))
                 set_menu(&menu_video);
             else if (SELECTED(ENTRY_SOUND))
                 set_menu(&menu_sound);
@@ -535,6 +578,31 @@ void Menu::tick_menu()
         else if (menu_selected == &menu_about)
         {
             set_menu(&menu_main);
+        }
+        else if (menu_selected == &menu_cannonboard)
+        {
+            if (SELECTED(ENTRY_BACK))
+                set_menu(&menu_settings);
+            else if (SELECTED(ENTRY_C_INTERFACE))
+            {
+                cabdiag->set(CabDiag::STATE_INTERFACE);
+                state = STATE_DIAGNOSTICS; return;
+            }
+            else if (SELECTED(ENTRY_C_INPUTS))
+            {
+                cabdiag->set(CabDiag::STATE_INPUT);
+                state = STATE_DIAGNOSTICS; return;
+            }
+            else if (SELECTED(ENTRY_C_OUTPUTS))
+            {
+                cabdiag->set(CabDiag::STATE_OUTPUT);
+                state = STATE_DIAGNOSTICS; return;
+            }
+            else if (SELECTED(ENTRY_C_CRT))
+            {
+                cabdiag->set(CabDiag::STATE_CRT);
+                state = STATE_DIAGNOSTICS; return;
+            }
         }
         else if (menu_selected == &menu_video)
         {

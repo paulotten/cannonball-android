@@ -20,11 +20,35 @@ OMusic omusic;
 
 OMusic::OMusic(void)
 {
+    tilemap    = NULL;
+    tile_patch = NULL;
 }
 
 
 OMusic::~OMusic(void)
 {
+    if (tilemap)    delete tilemap;
+    if (tile_patch) delete tile_patch;
+}
+
+// Load Modified Widescreen version of tilemap
+bool OMusic::load_widescreen_map()
+{
+    int status = 0;
+
+    if (tilemap == NULL)
+    {
+        tilemap = new RomLoader();
+        status += tilemap->load_binary("res/tilemap.bin");
+    }
+
+    if (tile_patch == NULL)
+    {
+        tile_patch = new RomLoader();
+        status += tile_patch->load_binary("res/tilepatch.bin");
+    }
+
+    return status == 0;
 }
 
 // Initialize Music Selection Screen
@@ -68,6 +92,13 @@ void OMusic::enable()
     setup_sprite4();
     setup_sprite5();
 
+    // Widescreen tiles need additional palette information copied over
+    if (tile_patch->loaded && config.s16_x_off > 0)
+    {
+        video.tile_layer->patch_tiles(tile_patch);
+        otiles.setup_palette_widescreen();
+    }
+
     video.tile_layer->set_x_clamp(video.tile_layer->CENTRE);
 }
 
@@ -80,6 +111,14 @@ void OMusic::disable()
     }
 
     video.tile_layer->set_x_clamp(video.tile_layer->RIGHT);
+
+    // Restore original palette for widescreen tiles.
+    if (config.s16_x_off > 0)
+    {
+        video.tile_layer->restore_tiles();
+        otiles.setup_palette_tilemap();
+    }
+
     video.enabled = false; // Turn screen off
 }
 
@@ -163,7 +202,7 @@ void OMusic::setup_sprite5()
 // Source: 0xB768
 void OMusic::check_start()
 {
-    if (ostats.credits && input.is_pressed(Input::START))
+    if (ostats.credits && input.is_pressed_clear(Input::START))
     {
         outrun.game_state = GS_INIT_GAME;
         ologo.disable();
@@ -314,7 +353,6 @@ void OMusic::blit()
 // p--------------- Priority flag
 // -??------------- Unknown
 
-
 void OMusic::blit_music_select()
 {
     const uint32_t TILEMAP_RAM_16 = 0x10F030;
@@ -327,49 +365,69 @@ void OMusic::blit_music_select()
 
     // Write 32 Palette Longs to Palette RAM
     for (int i = 0; i < 32; i++)
-    {
         video.write_pal32(&dst_addr, roms.rom0.read32(&src_addr));
-    }
 
-    otiles.reset_scroll();
-
-    src_addr = TILEMAP_MUSIC_SELECT;
-
-    // Blit to tilemap 16
-    uint32_t tilemap16 = TILEMAP_RAM_16;
+    // Set Tilemap Scroll
+    otiles.set_scroll(config.s16_x_off);
     
-    for (int y = 0; y <= 27; y++)
+    // --------------------------------------------------------------------------------------------
+    // Blit to Tilemap 16: Widescreen Version. Uses Custom Tilemap. 
+    // --------------------------------------------------------------------------------------------
+    if (tilemap->loaded && config.s16_x_off > 0)
     {
-        dst_addr = tilemap16;
-        for (int x = 0; x <= 39;)
-        {
-            // get next tile
-            uint32_t data = roms.rom0.read16(&src_addr);
-            // No Compression: write tile directly to tile ram
-            if (data != 0)
-            {
-                video.write_tile16(&dst_addr, data);        
-                x++;
-            }
-            // Compression
-            else
-            {
-                uint16_t value = roms.rom0.read16(&src_addr); // tile index to copy
-                uint16_t count = roms.rom0.read16(&src_addr); // number of times to copy value
+        uint32_t tilemap16 = TILEMAP_RAM_16 - 20;
+        src_addr = 0;
 
-                for (uint16_t i = 0; i <= count; i++)
+        const uint16_t rows = tilemap->read16(&src_addr);
+        const uint16_t cols = tilemap->read16(&src_addr);
+
+        for (int y = 0; y < rows; y++)
+        {
+            dst_addr = tilemap16;
+            for (int x = 0; x < cols; x++)
+                video.write_tile16(&dst_addr, tilemap->read16(&src_addr));
+            tilemap16 += 0x80; // next line of tiles
+        }
+    }
+    // --------------------------------------------------------------------------------------------
+    // Blit to Tilemap 16: Original 4:3 Version. 
+    // --------------------------------------------------------------------------------------------
+    else
+    {
+        uint32_t tilemap16 = TILEMAP_RAM_16;
+        src_addr = TILEMAP_MUSIC_SELECT;
+
+        for (int y = 0; y < 28; y++)
+        {
+            dst_addr = tilemap16;
+            for (int x = 0; x < 40;)
+            {
+                // get next tile
+                uint32_t data = roms.rom0.read16(&src_addr);
+                // No Compression: write tile directly to tile ram
+                if (data != 0)
                 {
-                    video.write_tile16(&dst_addr, value);
+                    video.write_tile16(&dst_addr, data);    
                     x++;
                 }
-            }
-        }
-        tilemap16 += 0x80; // next line of tiles
-    } // end for
+                // Compression
+                else
+                {
+                    uint16_t value = roms.rom0.read16(&src_addr); // tile index to copy
+                    uint16_t count = roms.rom0.read16(&src_addr); // number of times to copy value
 
-    // Fix Misplaced tile on music select screen (above steering wheel)
-    if (config.engine.fix_bugs)
-    {
-        video.write_tile16(0x10F730, 0x0C80);
-    }
+                    for (uint16_t i = 0; i <= count; i++)
+                    {
+                        video.write_tile16(&dst_addr, value);
+                        x++;
+                    }
+                }
+            }
+            tilemap16 += 0x80; // next line of tiles
+        } // end for
+
+        // Fix Misplaced tile on music select screen (above steering wheel)
+        if (config.engine.fix_bugs)
+            video.write_tile16(0x10F730, 0x0C80);
+    } 
 }

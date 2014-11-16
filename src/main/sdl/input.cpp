@@ -47,6 +47,7 @@ void Input::init(int pad_id, int* key_config, int* pad_config, int analog, int* 
     }
 
     a_wheel = CENTRE;
+	
     delay   = 0;
 
 	active_panels = FRONTEND_MASK;
@@ -68,6 +69,14 @@ bool Input::has_pressed(presses p)
 bool Input::is_pressed(presses p)
 {
     return keys[p];
+}
+
+// Detect whether pressed and clear the press
+bool Input::is_pressed_clear(presses p)
+{
+    bool pressed = keys[p];
+    keys[p] = false;
+    return pressed;
 }
 
 // Denote that a frame has been done by copying key presses into previous array
@@ -317,47 +326,6 @@ void Input::handle_joy_axis(SDL_JoyAxisEvent* evt)
             a_brake = adjusted;
         }
     }
-}
-
-// Use analog controls for menu.
-bool Input::is_analog_l()
-{
-    if (analog && a_wheel < CENTRE - 0x10)
-    {
-        if (--delay < 0)
-        {
-            delay = DELAY_RESET;
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-bool Input::is_analog_r()
-{
-    if (analog && a_wheel > CENTRE + 0x10)
-    {
-        if (--delay < 0)
-        {
-            delay = DELAY_RESET;
-            return true;
-        }
-    }   
-    return false;
-}
-
-bool Input::is_analog_select()
-{
-    if (analog && a_accel > 0x50)
-    {
-        if (--delay < 0)
-        {
-            delay = DELAY_RESET;
-            return true;
-        }
-    }   
-    return false;
 }
 
 void Input::handle_joy_down(SDL_JoyButtonEvent* evt)

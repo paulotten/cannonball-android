@@ -22,6 +22,7 @@
 
 RomLoader::RomLoader()
 {
+    loaded = false;
 }
 
 RomLoader::~RomLoader()
@@ -64,6 +65,7 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
     if (!src)
 	{
         std::cout << "cannot open rom: " << filename << std::endl;
+        loaded = false;
         return 1; // fail
     }
 
@@ -90,12 +92,14 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
     // Clean Up
     delete[] buffer;
     src.close();
-
+	
+    loaded = true;
+	
     return 0; // success
 }
 
-// Load LayOut Level As Binary File
-int RomLoader::load_level(const char* filename)
+// Load Binary File (LayOut Levels, Tilemap Data etc.)
+int RomLoader::load_binary(const char* filename)
 {
 #ifdef __APPLE__    
     CFBundleRef mainBundle = CFBundleGetMainBundle();
@@ -117,11 +121,12 @@ int RomLoader::load_level(const char* filename)
     std::ifstream src(filename, std::ios::in | std::ios::binary);
     if (!src)
     {
-        std::cout << "cannot open level: " << filename << std::endl;
+        std::cout << "cannot open file: " << filename << std::endl;
+        loaded = false;
         return 1; // fail
     }
 
-    int length = filesize(filename);
+    length = filesize(filename);
 
     // Read file
     char* buffer = new char[length];
@@ -131,6 +136,7 @@ int RomLoader::load_level(const char* filename)
     // Clean Up
     src.close();
 
+    loaded = true;
     return 0; // success
 }
 

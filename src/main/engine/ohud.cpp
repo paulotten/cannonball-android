@@ -17,6 +17,7 @@
 #include "engine/oferrari.hpp"
 #include "engine/outils.hpp"
 #include "engine/ohud.hpp"
+#include "engine/ooutputs.hpp"
 #include "engine/ostats.hpp"
 
 OHud ohud;
@@ -146,8 +147,29 @@ void OHud::draw_timer1(uint16_t time)
     if (outrun.game_state < GS_START1 || outrun.game_state > GS_INGAME)
         return;
 
-    const uint16_t BASE_TILE = 0x8C80;
-    draw_timer2(time, 0x1100BE, BASE_TILE);
+    if (!outrun.freeze_timer)
+    {
+        const uint16_t BASE_TILE = 0x8C80;
+        draw_timer2(time, 0x1100BE, BASE_TILE);
+
+        // Blank out the OFF text area
+        video.write_text16(0x110C2, 0);
+        video.write_text16(0x110C2 + 0x80, 0);
+    }
+    else
+    {
+        uint32_t dst_addr = translate(7, 1);
+        const uint16_t PAL = 0x8AA0;
+        const uint16_t O = (('O' - 0x41) * 2) + PAL; // Convert character to real index (D0-0x41) so A is 0x01
+        const uint16_t F = (('F' - 0x41) * 2) + PAL;
+        
+        video.write_text16(&dst_addr,       O);     // Write first row to text ram
+        video.write_text16(0x7E + dst_addr, O + 1); // Write second row to text ram
+        video.write_text16(&dst_addr,       F);     // Write first row to text ram
+        video.write_text16(0x7E + dst_addr, F + 1); // Write second row to text ram
+        video.write_text16(&dst_addr,       F);     // Write first row to text ram
+        video.write_text16(0x7E + dst_addr, F + 1); // Write second row to text ram
+    }
 }
 
 // Called directly by High Score Table
@@ -451,17 +473,40 @@ void OHud::draw_insert_coin()
         if (ostats.credits)
         {
             if (outrun.tick_counter & BIT_4)
+            {
                 blit_text1(TEXT1_PRESS_START);
+                outrun.outputs->set_digital(OOutputs::D_START_LAMP);
+            }
             else
+            {
                 blit_text1(TEXT1_CLEAR_START);
+                outrun.outputs->clear_digital(OOutputs::D_START_LAMP);
+            }
         }
-        // Flash Insert Coins
+        // Flash Insert Coins / Freeplay Press Start
         else
         {
-            if (outrun.tick_counter & BIT_4)
-                blit_text1(TEXT1_INSERT_COINS);
+            if (config.engine.freeplay)
+            {
+                uint32_t dst_addr = 0x110ACC;
+                const static uint8_t PRESS_START[] = {0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x28};
+                
+                if (outrun.tick_counter & BIT_4)
+                {                
+                    // Blit each tile
+                    for (uint16_t i = 0; i < sizeof(PRESS_START); i++)
+                        video.write_text16(&dst_addr, (0x8700 | PRESS_START[i]));
+                }
+                else
+                {
+                    for (uint16_t i = 0; i < sizeof(PRESS_START); i++)
+                        video.write_text16(&dst_addr, (0x8700 | 0x20));
+                }
+            }
             else
-                blit_text1(TEXT1_CLEAR_COINS);
+            {
+                blit_text1((outrun.tick_counter & BIT_4) ? TEXT1_INSERT_COINS : TEXT1_CLEAR_COINS);
+            }
         }
     }
 }
@@ -469,7 +514,7 @@ void OHud::draw_insert_coin()
 // Source: 0x6CDE
 void OHud::draw_credits()
 {
-    if (ostats.free_play)
+    if (config.engine.freeplay)
     {
         blit_text1(TEXT1_FREEPLAY);
     }

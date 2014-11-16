@@ -94,10 +94,24 @@ struct controls_settings_t
     int force_duration;
 };
 
+struct cannonboard_settings_t
+{
+    const static int CABINET_MOVING  = 0;
+    const static int CABINET_UPRIGHT = 1;
+    const static int CABINET_MINI    = 2;
+
+    int enabled;      // CannonBall used in conjunction with CannonBoard in arcade cabinet
+    std::string port; // Port Name
+    int baud;         // Baud Rate
+    int debug;        // Display Debug Information
+    int cabinet;      // Cabinet Type
+};
+
 struct engine_settings_t
 {
     int dip_time;
     int dip_traffic;
+    bool freeplay;
     bool freeze_timer;
     bool disable_traffic;
     int jap;
@@ -106,6 +120,7 @@ struct engine_settings_t
     int level_objects;
     bool fix_bugs;
     bool fix_bugs_backup;
+    bool fix_timer;
     bool layout_debug;
     int new_attract;
 };
@@ -121,6 +136,7 @@ public:
     controls_settings_t controls;
     engine_settings_t   engine;
     ttrial_settings_t   ttrial;
+    cannonboard_settings_t cannonboard;
 
     // Internal screen width and height
     uint16_t s16_width, s16_height;

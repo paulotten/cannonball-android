@@ -148,6 +148,15 @@ void Config::load(const std::string &filename)
     }
 
     // ------------------------------------------------------------------------
+    // CannonBoard Settings
+    // ------------------------------------------------------------------------
+    cannonboard.enabled = pt_config.get("cannonboard.<xmlattr>.enabled", 0);
+    cannonboard.port    = pt_config.get("cannonboard.port", "COM6");
+    cannonboard.baud    = pt_config.get("cannonboard.baud", 57600);
+    cannonboard.debug   = pt_config.get("cannonboard.debug", 0);
+    cannonboard.cabinet = pt_config.get("cannonboard.cabinet", 0);
+
+    // ------------------------------------------------------------------------
     // Controls
     // ------------------------------------------------------------------------
     controls.gear          = pt_config.get("controls.gear", 0);
@@ -211,6 +220,7 @@ void Config::load(const std::string &filename)
     engine.dip_time    &= 3;
     engine.dip_traffic &= 3;
 
+    engine.freeplay      = pt_config.get("engine.freeplay",        0) != 0;
     engine.jap           = pt_config.get("engine.japanese_tracks", 0);
     engine.prototype     = pt_config.get("engine.prototype",       0);
     
@@ -219,6 +229,7 @@ void Config::load(const std::string &filename)
     engine.randomgen       = pt_config.get("engine.randomgen",    1);
     engine.fix_bugs_backup = 
     engine.fix_bugs        = pt_config.get("engine.fix_bugs",     1) != 0;
+    engine.fix_timer       = pt_config.get("engine.fix_timer",    0) != 0;
     engine.layout_debug    = pt_config.get("engine.layout_debug", 0) != 0;
     engine.new_attract     = pt_config.get("engine.new_attract", 1) != 0;
 

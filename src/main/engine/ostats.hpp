@@ -76,14 +76,10 @@ public:
     // Set when game completed
     bool game_completed;
 
-    // Table to convert value to milliseconds
-    static const uint8_t LAP_MS[];
+    const uint8_t* lap_ms;
 
     // Number of credits inserted
     uint8_t credits;
-
-    // Free play mode
-    bool free_play;
 
     // Each stage has an entry for minutes, seconds and MS. (Extended to 15 from 5 to support continuous mode)
     uint8_t stage_times[15][3];

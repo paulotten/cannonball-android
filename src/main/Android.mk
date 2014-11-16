@@ -43,9 +43,12 @@ LOCAL_SRC_FILES := \
 	engine/otraffic.cpp \
 	engine/outils.cpp \
 	engine/outrun.cpp \
+	cannonboard/asyncserial.cpp \
+	cannonboard/interface.cpp \
 	frontend/config.cpp \
 	frontend/menu.cpp \
 	frontend/ttrial.cpp \
+	frontend/cabdiag.cpp \
 	hwaudio/segapcm.cpp \
 	hwaudio/soundchip.cpp \
 	hwaudio/ym2151.cpp \

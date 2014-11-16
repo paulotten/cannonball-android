@@ -43,6 +43,11 @@ extern AAssetManager * __assetManager;
 #include "frontend/config.hpp"
 #include "frontend/menu.hpp"
 
+#include "cannonboard/interface.hpp"
+#include "engine/oinputs.hpp"
+#include "engine/ooutputs.hpp"
+#include "engine/omusic.hpp"
+
 // Direct X Haptic Support.
 // Fine to include on non-windows builds as dummy functions used.
 #include "directx/ffeedback.hpp"
@@ -60,7 +65,8 @@ int    cannonball::fps_counter = 0;
 Audio cannonball::audio;
 #endif
 
-Menu menu;
+Menu* menu;
+Interface cannonboard;
 
 static void quit_func(int code)
 {
@@ -69,6 +75,7 @@ static void quit_func(int code)
 #endif
     input.close();
     forcefeedback::close();
+    delete menu;
     SDL_Quit();
     exit(code);
 }
@@ -142,6 +149,9 @@ static void tick()
 {
     frame++;
 
+    // Get CannonBoard Packet Data
+    Packet* packet = config.cannonboard.enabled ? cannonboard.get_packet() : NULL;
+
     // Non standard FPS.
     // Determine whether to tick the current frame.
     if (config.fps != 30)
@@ -155,55 +165,60 @@ static void tick()
     process_events();
 
 	overlay.tick();
+	
+    if (tick_frame)
+        oinputs.tick(packet); // Do Controls
+    oinputs.do_gear();        // Digital Gear
 
-	switch (state)
-	{
-		case STATE_GAME:
-		{
-			if (input.has_pressed(Input::TIMER))
-				outrun.freeze_timer = !outrun.freeze_timer;
+    switch (state)
+    {
+        case STATE_GAME:
+        {
+            if (input.has_pressed(Input::TIMER))
+                outrun.freeze_timer = !outrun.freeze_timer;
 
-			if (input.has_pressed(Input::PAUSE))
-				pause_engine = !pause_engine;
+            if (input.has_pressed(Input::PAUSE))
+                pause_engine = !pause_engine;
 
-			if (input.has_pressed(Input::MENU))
-				state = STATE_INIT_MENU;
+            if (input.has_pressed(Input::MENU))
+                state = STATE_INIT_MENU;
 
-			if (!pause_engine || input.has_pressed(Input::STEP))
-			{
-				outrun.tick(tick_frame);
-				input.frame_done(); // Denote keys read
+            if (!pause_engine || input.has_pressed(Input::STEP))
+            {
+                outrun.tick(packet, tick_frame);
+                input.frame_done(); // Denote keys read
 
-	#ifdef COMPILE_SOUND_CODE
-				// Tick audio program code
-				osoundint.tick();
-				// Tick SDL Audio
-				audio.tick();
-	#endif
-			}
-			else
-			{
-				input.frame_done(); // Denote keys read
-			}
-			break;
-		}
-		case STATE_INIT_GAME:
-		{
-			if (config.engine.jap && !roms.load_japanese_roms())
-			{
-				state = STATE_QUIT;
-			}
-			else
-			{
-				pause_engine = false;
-				outrun.init();
-				state = STATE_GAME;
-			}
-			break;
-		}
+                #ifdef COMPILE_SOUND_CODE
+                // Tick audio program code
+                osoundint.tick();
+                // Tick SDL Audio
+                audio.tick();
+                #endif
+            }
+            else
+            {                
+                input.frame_done(); // Denote keys read
+            }
+        }
+        break;
+
+        case STATE_INIT_GAME:
+            if (config.engine.jap && !roms.load_japanese_roms())
+            {
+                state = STATE_QUIT;
+            }
+            else
+            {
+                pause_engine = false;
+                outrun.init();
+                state = STATE_GAME;
+            }
+            break;
+
         case STATE_MENU:
-		{
-            menu.tick();
+        {
+            menu->tick(packet);
+			
             input.frame_done();
             #ifdef COMPILE_SOUND_CODE
 				// Tick audio program code
@@ -213,13 +228,19 @@ static void tick()
 			#endif
 			break;
         }
-		case STATE_INIT_MENU:
+        case STATE_INIT_MENU:
 		{
-			menu.init();
-			state = STATE_MENU;
-			break;
+            oinputs.init();
+            outrun.outputs->init();
+            menu->init();
+            state = STATE_MENU;
+            break;
 		}
     }
+    // Write CannonBoard Outputs
+    if (config.cannonboard.enabled)
+        cannonboard.write(outrun.outputs->dig_out, outrun.outputs->hw_motor_control);
+
     // Draw SDL Video
     video.draw_frame();  
 }
@@ -303,6 +324,8 @@ int main(int argc, char* argv[])
 	SDL_AddTouch(&touch, "Android touch screen");
 #endif
 
+    menu = new Menu(&cannonboard);
+
     bool loaded = false;
 
     // Load LayOut File
@@ -354,6 +377,10 @@ int main(int argc, char* argv[])
         if (config.sound.fix_samples)
             roms.load_pcm_rom(true);
 
+        // Load patched widescreen tilemaps
+        if (!omusic.load_widescreen_map())
+            std::cout << "Unable to load widescreen tilemaps" << std::endl;
+
         //Set the window caption 
         SDL_WM_SetCaption("Cannonball", NULL); 
 
@@ -377,10 +404,17 @@ int main(int argc, char* argv[])
 
 		if (config.overlay.enabled)
 			overlay.init();
+			
+        // Initalize CannonBoard (For use in original cabinets)
+        if (config.cannonboard.enabled)
+        {
+            cannonboard.init(config.cannonboard.port, config.cannonboard.baud);
+            cannonboard.start();
+        }
 
         // Populate menus
-        menu.populate();
-
+        menu->populate();
+		
         main_loop();  // Loop until we quit the app
     }
     else

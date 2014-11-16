@@ -11,6 +11,8 @@
 
 #include "outrun.hpp"
 
+class RomLoader;
+
 class OMusic
 {
 public:
@@ -20,6 +22,7 @@ public:
     OMusic(void);
     ~OMusic(void);
 
+    bool load_widescreen_map();
     void enable();
     void disable();
     void tick();
@@ -27,6 +30,11 @@ public:
     void check_start();
 
 private:
+    // Modified Widescreen version of the Music Select Tilemap
+    RomLoader* tilemap;
+    // Additional Widescreen tiles
+    RomLoader* tile_patch;
+
     uint16_t entry_start;
 
     // Used to preview music track

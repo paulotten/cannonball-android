@@ -21,6 +21,7 @@
 #include "engine/oinputs.hpp"
 #include "engine/olevelobjs.hpp"
 #include "engine/omusic.hpp"
+#include "engine/ooutputs.hpp"
 #include "engine/ostats.hpp"
 #include "engine/outils.hpp"
 #include "engine/opalette.hpp"
@@ -111,6 +112,8 @@ void OInitEngine::setup_stage1()
     ostats.score = 0;
     ostats.clear_stage_times();
     oferrari.reset_car();               // Reset Car Speed/Rev Values
+    outrun.outputs->set_digital(OOutputs::D_EXT_MUTE);
+    outrun.outputs->set_digital(OOutputs::D_SOUND);
     osoundint.engine_data[sound::ENGINE_VOL] = 0x3F;
     ostats.extend_play_timer = 0;
     checkpoint_marker = 0;              // Denote not past checkpoint marker
@@ -284,7 +287,7 @@ void OInitEngine::update_engine()
         ohud.blit_text1(HUD_KPH2);
 
         // Blit High/Low Gear
-        if (config.controls.gear == config.controls.GEAR_BUTTON)
+        if (config.controls.gear == config.controls.GEAR_BUTTON && !config.cannonboard.enabled)
         {
             if (oinputs.gear)
                 ohud.blit_text_new(9, 26, "H");
@@ -456,13 +459,13 @@ void OInitEngine::check_stage()
             outrun.ttrial.best_lap_counter = counter;
             outrun.ttrial.best_lap[0] = laptimes[0];
             outrun.ttrial.best_lap[1] = laptimes[1];
-            outrun.ttrial.best_lap[2] = OStats::LAP_MS[laptimes[2]];
+            outrun.ttrial.best_lap[2] = ostats.lap_ms[laptimes[2]];
 
             // Draw best laptime
             ostats.extend_play_timer = 0x80;
             ohud.blit_text1(TEXT1_LAPTIME1);
             ohud.blit_text1(TEXT1_LAPTIME2);
-            ohud.draw_lap_timer(0x110554, laptimes, OStats::LAP_MS[laptimes[2]]);
+            ohud.draw_lap_timer(0x110554, laptimes, ostats.lap_ms[laptimes[2]]);
 
             outrun.ttrial.new_high_score = true;
         }

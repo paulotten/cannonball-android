@@ -97,7 +97,8 @@ public:
 #endif
     void frame_done();
     bool is_pressed(presses p);
-	bool has_pressed(presses p);
+    bool is_pressed_clear(presses p);
+    bool has_pressed(presses p);
     bool is_analog_l();
     bool is_analog_r();
     bool is_analog_select();
