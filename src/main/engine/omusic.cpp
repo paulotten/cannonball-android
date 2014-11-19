@@ -16,6 +16,10 @@
 #include "engine/otraffic.hpp"
 #include "engine/ostats.hpp"
 
+#ifdef __ANDROID__
+#include "android_debug.h"
+#endif
+
 OMusic omusic;
 
 OMusic::OMusic(void)
@@ -375,6 +379,8 @@ void OMusic::blit_music_select()
     // --------------------------------------------------------------------------------------------
     if (tilemap->loaded && config.s16_x_off > 0)
     {
+		printf("Blit to Tilemap 16: Widescreen Version. Uses Custom Tilemap.");
+
         uint32_t tilemap16 = TILEMAP_RAM_16 - 20;
         src_addr = 0;
 
@@ -394,6 +400,8 @@ void OMusic::blit_music_select()
     // --------------------------------------------------------------------------------------------
     else
     {
+		printf("Blit to Tilemap 16: Original 4:3 Version.");
+
         uint32_t tilemap16 = TILEMAP_RAM_16;
         src_addr = TILEMAP_MUSIC_SELECT;
 

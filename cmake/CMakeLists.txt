@@ -44,8 +44,8 @@ file(WRITE ${main_cpp_base}/setup.hpp
 
 #ifdef __ANDROID__
 
-const static char* FILENAME_OVERLAY = "overlay/main_normal.png";
-const static char* FILENAME_OVERLAY_PRESSED = "overlay/main_pressed.png";
+const static char* FILENAME_OVERLAY = \"overlay/main_normal.png\";
+const static char* FILENAME_OVERLAY_PRESSED = \"overlay/main_pressed.png\";
 
 const static char* FILENAME_CONFIG = \"/sdcard/config.xml\";
 const static char* FILENAME_SCORES = \"/sdcard/hiscores\";
@@ -56,8 +56,8 @@ const static int SDL_BPP = 16;
 
 #else 
 
-const static char* FILENAME_OVERLAY = "res/overlay/main_normal.png";
-const static char* FILENAME_OVERLAY_PRESSED = "res/overlay/main_pressed.png";
+const static char* FILENAME_OVERLAY = \"res/overlay/main_normal.png\";
+const static char* FILENAME_OVERLAY_PRESSED = \"res/overlay/main_pressed.png\";
 
 const static char* FILENAME_CONFIG = \"${xml_directory}config.xml\";
 const static char* FILENAME_SCORES = \"${xml_directory}hiscores\";
@@ -270,7 +270,7 @@ endif()
 add_executable(cannonball ${SRCS})
 
 # Copy Configuration file to current build
-configure_file(../res/config.xml ./config.xml
+configure_file(../res/config/config.xml ./config.xml
     COPYONLY 
 )
 # Copy Resource files

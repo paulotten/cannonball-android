@@ -3,6 +3,7 @@
 # For DirectX, assumes DXSDK_DIR is already configured and pointing to your DirectX setup.
 
 set(sdl_root ../external/sdl-1.2)
+set(stb_root ../external/stb)
 
 if (NOT DEFINED ENV{DXSDK_DIR})
     message(FATAL_ERROR "Warning: DirectX SDK Variable DXSDK_DIR Not Defined!")
@@ -16,6 +17,7 @@ set(CANNONBOARD 0)
 
 include_directories(
     "${sdl_root}/include"
+    "${stb_root}"
 )
 
 link_libraries(cannonball 
@@ -52,6 +54,8 @@ if (CANNONBOARD)
     # This will tell the Boost config system not to automatically select which libraries to link against.
     add_definitions(-DBOOST_ALL_NO_LIB)
 endif()
+
+add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
 
 # Location for Cannonball to create save files
 # Used to auto-generate setup.hpp with various file paths
